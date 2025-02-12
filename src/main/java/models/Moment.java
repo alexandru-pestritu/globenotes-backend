@@ -1,0 +1,59 @@
+package models;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+
+@Entity
+@Table(name = "moments")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Moment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "journal_id", nullable = false)
+    private Journal journal;
+
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
+
+    @Column(length = 100, nullable = false)
+    private String name;
+
+    @Lob
+    private String description;
+
+    private LocalDateTime dateTime;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "moment", cascade = CascadeType.ALL)
+    private List<MomentMedia> momentMediaList;
+
+    @PrePersist
+    public void onPrePersist() {
+        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+    }
+}
