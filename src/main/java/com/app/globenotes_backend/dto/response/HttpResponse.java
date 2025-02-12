@@ -1,4 +1,4 @@
-package com.app.globenotes_backend.dto;
+package com.app.globenotes_backend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

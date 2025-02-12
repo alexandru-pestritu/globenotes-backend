@@ -1,6 +1,6 @@
 package com.app.globenotes_backend.exception;
 
-import com.app.globenotes_backend.dto.HttpResponse;
+import com.app.globenotes_backend.dto.response.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.dao.DataAccessException;
