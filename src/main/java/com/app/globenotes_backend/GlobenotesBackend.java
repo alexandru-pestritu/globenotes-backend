@@ -1,13 +1,13 @@
-package com.example.globenotes_backend;
+package com.app.globenotes_backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GlobenotesBackendApplication {
+public class GlobenotesBackend {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GlobenotesBackendApplication.class, args);
+		SpringApplication.run(GlobenotesBackend.class, args);
 	}
 
 }

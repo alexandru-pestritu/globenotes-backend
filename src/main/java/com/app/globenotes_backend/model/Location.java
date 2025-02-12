@@ -1,4 +1,4 @@
-package models;
+package com.app.globenotes_backend.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,44 +7,39 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 
 @Entity
-@Table(name = "moments")
+@Table(name = "location")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Moment {
+public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "journal_id", nullable = false)
-    private Journal journal;
+    private Double latitude;
+    private Double longitude;
+
+    @Column(length = 500)
+    private String formattedAddress;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 100)
+    private String state;
+
+    @Column(length = 255)
+    private String googlePlaceId;
 
     @ManyToOne
-    @JoinColumn(name = "location_id")
-    private Location location;
-
-    @Column(length = 100, nullable = false)
-    private String name;
-
-    @Lob
-    private String description;
-
-    private LocalDateTime dateTime;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @JoinColumn(name = "country_id")
+    private Country country;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "moment", cascade = CascadeType.ALL)
-    private List<MomentMedia> momentMediaList;
 
     @PrePersist
     public void onPrePersist() {
@@ -56,4 +51,5 @@ public class Moment {
     public void onPreUpdate() {
         this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
     }
+
 }

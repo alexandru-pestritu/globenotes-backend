@@ -1,12 +1,9 @@
-package models;
+package com.app.globenotes_backend.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @Entity
 @Table(name = "countries")

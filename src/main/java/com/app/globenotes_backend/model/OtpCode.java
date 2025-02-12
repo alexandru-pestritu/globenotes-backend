@@ -1,4 +1,4 @@
-package models;
+package com.app.globenotes_backend.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,11 +9,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Entity
-@Table(name = "user_social_accounts")
+@Table(name = "otp_codes")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSocialAccount {
+public class OtpCode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,23 +23,18 @@ public class UserSocialAccount {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(length = 50, nullable = false)
-    private String provider;
+    @Column(length = 10, nullable = false)
+    private String code;
 
-    @Column(length = 255, nullable = false)
-    private String providerId;
+    @Column(length = 50, nullable = false)
+    private String type;
 
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime expiresAt;
+    private LocalDateTime usedAt;
 
     @PrePersist
     public void onPrePersist() {
         this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
-        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
-    }
-
-    @PreUpdate
-    public void onPreUpdate() {
-        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
     }
 }

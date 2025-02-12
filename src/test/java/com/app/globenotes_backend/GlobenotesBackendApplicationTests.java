@@ -1,4 +1,4 @@
-package com.example.globenotes_backend;
+package com.app.globenotes_backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

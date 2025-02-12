@@ -1,4 +1,4 @@
-package models;
+package com.app.globenotes_backend.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
