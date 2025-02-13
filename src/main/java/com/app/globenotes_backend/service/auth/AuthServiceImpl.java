@@ -7,6 +7,7 @@ import com.app.globenotes_backend.model.OtpCode;
 import com.app.globenotes_backend.model.RefreshToken;
 import com.app.globenotes_backend.model.User;
 import com.app.globenotes_backend.model.UserSocialAccount;
+import com.app.globenotes_backend.service.email.EmailService;
 import com.app.globenotes_backend.service.otp.OtpService;
 import com.app.globenotes_backend.service.refresh.RefreshTokenService;
 import com.app.globenotes_backend.service.social.SocialAccountService;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final SocialAccountService socialAccountService;
     private final JwtUtils jwtUtils;
+    private final EmailService emailService;
 
     private final long OTP_EXPIRY_MINUTES = 10;
     private final long REFRESH_EXPIRY_DAYS = 365;
@@ -38,7 +42,15 @@ public class AuthServiceImpl implements AuthService {
         String code = generateRandom4Digits();
         otpService.createOtp(user, "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
 
-        // TODO: send email with 'code'
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("NAME", user.getName());
+        placeholders.put("OTP_CODE", code);
+
+        emailService.sendTemplatedEmail(
+                user.getEmail(),
+                "email-verification",
+                placeholders
+        );
     }
 
 
@@ -76,7 +88,16 @@ public class AuthServiceImpl implements AuthService {
         userService.findByEmail(request.getEmail()).ifPresent(user -> {
             String code = generateRandom4Digits();
             otpService.createOtp(user, "RESET_PASSWORD", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
-            // TODO: send email with code
+
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("NAME", user.getName());
+            placeholders.put("OTP_CODE", code);
+
+            emailService.sendTemplatedEmail(
+                    user.getEmail(),
+                    "password-reset",
+                    placeholders
+            );
         });
     }
 
