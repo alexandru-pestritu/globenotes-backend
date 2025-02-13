@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.nio.file.AccessDeniedException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +31,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
             Exception ex, Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
 
         HttpResponse response = HttpResponse.builder()
-                .timeStamp(LocalDateTime.now().toString())
+                .timeStamp(Instant.now().toString())
                 .statusCode(statusCode.value())
                 .status(HttpStatus.valueOf(statusCode.value()))
                 .message(ex.getMessage())
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
                 .collect(Collectors.joining(", "));
 
         HttpResponse response = HttpResponse.builder()
-                .timeStamp(LocalDateTime.now().toString())
+                .timeStamp(Instant.now().toString())
                 .statusCode(statusCode.value())
                 .status(HttpStatus.valueOf(statusCode.value()))
                 .message("Validation error: " + fieldMessage)
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     public ResponseEntity<HttpResponse> handleSQLIntegrityConstraintViolation(SQLIntegrityConstraintViolationException ex) {
         log.error("SQLIntegrityConstraintViolationException: {}", ex.getMessage());
         HttpResponse response = HttpResponse.builder()
-                .timeStamp(LocalDateTime.now().toString())
+                .timeStamp(Instant.now().toString())
                 .statusCode(BAD_REQUEST.value())
                 .status(BAD_REQUEST)
                 .message(ex.getMessage().contains("Duplicate entry") ? "Information already exists" : ex.getMessage())
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     public ResponseEntity<HttpResponse> handleBadCredentials(BadCredentialsException ex) {
         log.error("BadCredentialsException: {}", ex.getMessage());
         HttpResponse response = HttpResponse.builder()
-                .timeStamp(LocalDateTime.now().toString())
+                .timeStamp(Instant.now().toString())
                 .statusCode(BAD_REQUEST.value())
                 .status(BAD_REQUEST)
                 .message("Incorrect email or password")
@@ -86,7 +86,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     public ResponseEntity<HttpResponse> handleApiException(ApiException ex) {
         log.error("ApiException: {}", ex.getMessage());
         HttpResponse response = HttpResponse.builder()
-                .timeStamp(LocalDateTime.now().toString())
+                .timeStamp(Instant.now().toString())
                 .statusCode(BAD_REQUEST.value())
                 .status(BAD_REQUEST)
                 .message(ex.getMessage())
@@ -98,7 +98,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     public ResponseEntity<HttpResponse> handleAccessDeniedException(AccessDeniedException ex) {
         log.error("AccessDeniedException: {}", ex.getMessage());
         HttpResponse response = HttpResponse.builder()
-                .timeStamp(LocalDateTime.now().toString())
+                .timeStamp(Instant.now().toString())
                 .statusCode(FORBIDDEN.value())
                 .status(FORBIDDEN)
                 .message("Access denied. You don\'t have access.")
@@ -110,7 +110,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     public ResponseEntity<HttpResponse> handleException(Exception ex) {
         log.error("Exception: {}", ex.getMessage());
         HttpResponse response = HttpResponse.builder()
-                .timeStamp(LocalDateTime.now().toString())
+                .timeStamp(Instant.now().toString())
                 .statusCode(INTERNAL_SERVER_ERROR.value())
                 .status(INTERNAL_SERVER_ERROR)
                 .message(ex.getMessage() != null
@@ -125,7 +125,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     public ResponseEntity<HttpResponse> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex) {
         log.error("EmptyResultDataAccessException: {}", ex.getMessage());
         HttpResponse response = HttpResponse.builder()
-                .timeStamp(LocalDateTime.now().toString())
+                .timeStamp(Instant.now().toString())
                 .statusCode(BAD_REQUEST.value())
                 .status(BAD_REQUEST)
                 .message(ex.getMessage().contains("expected 1, actual 0") ? "Record not found" : ex.getMessage())
@@ -138,7 +138,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     public ResponseEntity<HttpResponse> handleDataAccessException(DataAccessException ex) {
         log.error("DataAccessException: {}", ex.getMessage());
         HttpResponse response = HttpResponse.builder()
-                .timeStamp(LocalDateTime.now().toString())
+                .timeStamp(Instant.now().toString())
                 .statusCode(BAD_REQUEST.value())
                 .status(BAD_REQUEST)
                 .message(processErrorMessage(ex.getMessage()))
