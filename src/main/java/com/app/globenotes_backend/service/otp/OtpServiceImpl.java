@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,14 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public OtpCode createOtp(User user, String type, String code, LocalDateTime expiresAt) {
+        List<OtpCode> oldOtps = otpCodeRepository
+                .findAllActiveByUserAndType(user.getId(), type, LocalDateTime.now(ZoneOffset.UTC));
+
+        for (OtpCode old : oldOtps) {
+            old.setUsedAt(LocalDateTime.now(ZoneOffset.UTC));
+            otpCodeRepository.save(old);
+        }
+
         OtpCode otp = new OtpCode();
         otp.setUser(user);
         otp.setType(type);
