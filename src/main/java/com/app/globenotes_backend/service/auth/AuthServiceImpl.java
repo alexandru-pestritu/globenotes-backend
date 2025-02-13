@@ -2,11 +2,10 @@ package com.app.globenotes_backend.service.auth;
 
 import com.app.globenotes_backend.dto.request.*;
 import com.app.globenotes_backend.dto.response.LoginResponse;
+import com.app.globenotes_backend.dto.social.FacebookUserInfo;
+import com.app.globenotes_backend.dto.social.GoogleUserInfo;
 import com.app.globenotes_backend.exception.ApiException;
-import com.app.globenotes_backend.model.OtpCode;
-import com.app.globenotes_backend.model.RefreshToken;
-import com.app.globenotes_backend.model.User;
-import com.app.globenotes_backend.model.UserSocialAccount;
+import com.app.globenotes_backend.model.*;
 import com.app.globenotes_backend.service.email.EmailService;
 import com.app.globenotes_backend.service.otp.OtpService;
 import com.app.globenotes_backend.service.refresh.RefreshTokenService;
@@ -14,6 +13,7 @@ import com.app.globenotes_backend.service.social.SocialAccountService;
 import com.app.globenotes_backend.service.user.UserService;
 import com.app.globenotes_backend.service.userProfile.UserProfileService;
 import com.app.globenotes_backend.util.JwtUtils;
+import com.app.globenotes_backend.util.SocialAuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final SocialAccountService socialAccountService;
     private final JwtUtils jwtUtils;
     private final EmailService emailService;
+    private final SocialAuthUtil socialAuthUtil;
 
     private final long OTP_EXPIRY_MINUTES = 10;
     private final long REFRESH_EXPIRY_DAYS = 365;
@@ -115,14 +117,71 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse loginWithGoogle(SocialLoginRequest request) {
-        //TODO: Google login implementation
-        throw new UnsupportedOperationException("Implementation for Google not done yet.");
+        GoogleUserInfo googleInfo = socialAuthUtil.validateGoogleToken(request.getIdToken());
+
+        String provider = "GOOGLE";
+        String providerId = googleInfo.getSub();
+
+        Optional<UserSocialAccount> socialOpt = socialAccountService.findByProviderAndProviderId(provider, providerId);
+        User user;
+        if (socialOpt.isPresent()) {
+            user = socialOpt.get().getUser();
+        } else {
+            user = userService.findByEmail(googleInfo.getEmail()).orElse(null);
+            if (user == null) {
+                user = userService.createUser(googleInfo.getName(), googleInfo.getEmail(), null);
+                userService.verifyUser(user);
+            }
+            socialAccountService.linkSocialAccount(user, provider, providerId);
+
+            if (googleInfo.getPicture() != null) {
+                UserProfile profile = userProfileService.getProfileByUserId(user.getId())
+                        .orElseThrow(() -> new ApiException("UserProfile not found."));
+                if(profile.getProfilePhotoUrl() == null)
+                    userProfileService.updateProfilePhoto(profile.getId(), googleInfo.getPicture());
+            }
+        }
+
+        String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
+        String refresh = jwtUtils.generateRefreshTokenString();
+        refreshTokenService.createRefreshToken(user, refresh, REFRESH_EXPIRY_DAYS);
+
+        return new LoginResponse(accessToken, refresh);
     }
+
 
     @Override
     public LoginResponse loginWithFacebook(SocialLoginRequest request) {
-        //TODO: Facebook login implementation
-        throw new UnsupportedOperationException("Implementation for Facebook not done yet.");
+        FacebookUserInfo fbInfo = socialAuthUtil.validateFacebookToken(request.getIdToken());
+
+        String provider = "FACEBOOK";
+        String providerId = fbInfo.getId();
+
+        Optional<UserSocialAccount> socialOpt = socialAccountService.findByProviderAndProviderId(provider, providerId);
+        User user;
+        if (socialOpt.isPresent()) {
+            user = socialOpt.get().getUser();
+        } else {
+            user = userService.findByEmail(fbInfo.getEmail()).orElse(null);
+            if (user == null) {
+                user = userService.createUser(fbInfo.getName(), fbInfo.getEmail(), null);
+                userService.verifyUser(user);
+            }
+            socialAccountService.linkSocialAccount(user, provider, providerId);
+
+            if (fbInfo.getPicture() != null) {
+                UserProfile profile = userProfileService.getProfileByUserId(user.getId())
+                        .orElseThrow(() -> new ApiException("UserProfile not found."));
+                if(profile.getProfilePhotoUrl() == null)
+                    userProfileService.updateProfilePhoto(profile.getId(), fbInfo.getPicture());
+            }
+        }
+
+        String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
+        String refresh = jwtUtils.generateRefreshTokenString();
+        refreshTokenService.createRefreshToken(user, refresh, REFRESH_EXPIRY_DAYS);
+
+        return new LoginResponse(accessToken, refresh);
     }
 
     @Override
