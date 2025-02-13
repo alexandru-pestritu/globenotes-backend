@@ -12,6 +12,7 @@ import com.app.globenotes_backend.service.otp.OtpService;
 import com.app.globenotes_backend.service.refresh.RefreshTokenService;
 import com.app.globenotes_backend.service.social.SocialAccountService;
 import com.app.globenotes_backend.service.user.UserService;
+import com.app.globenotes_backend.service.userProfile.UserProfileService;
 import com.app.globenotes_backend.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.util.Map;
 public class AuthServiceImpl implements AuthService {
 
     private final UserService userService;
+    private final UserProfileService userProfileService;
     private final OtpService otpService;
     private final RefreshTokenService refreshTokenService;
     private final SocialAccountService socialAccountService;
@@ -38,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void register(RegisterRequest request) {
         User user = userService.createUser(request.getName(), request.getEmail(), request.getPassword());
+        userProfileService.createProfile(user);
 
         String code = generateRandom4Digits();
         otpService.createOtp(user, "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
