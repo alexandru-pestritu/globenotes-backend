@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +21,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         RefreshToken refresh = RefreshToken.builder()
                 .user(user)
                 .token(token)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusDays(daysValid))
+                .createdAt(LocalDateTime.now(ZoneOffset.UTC))
+                .expiresAt(LocalDateTime.now(ZoneOffset.UTC).plusDays(daysValid))
                 .build();
         return refreshTokenRepository.save(refresh);
     }
@@ -30,7 +31,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public RefreshToken validateRefreshToken(String token) {
         RefreshToken refresh = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ApiException("Refresh token not found"));
-        if (refresh.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (refresh.getExpiresAt().isBefore(LocalDateTime.now(ZoneOffset.UTC))) {
             throw new ApiException("Refresh token expired");
         }
         return refresh;
@@ -39,8 +40,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public RefreshToken rotateRefreshToken(RefreshToken refreshToken, String newToken, long daysValid) {
         refreshToken.setToken(newToken);
-        refreshToken.setCreatedAt(LocalDateTime.now());
-        refreshToken.setExpiresAt(LocalDateTime.now().plusDays(daysValid));
+        refreshToken.setCreatedAt(LocalDateTime.now(ZoneOffset.UTC));
+        refreshToken.setExpiresAt(LocalDateTime.now(ZoneOffset.UTC).plusDays(daysValid));
         return refreshTokenRepository.save(refreshToken);
     }
 

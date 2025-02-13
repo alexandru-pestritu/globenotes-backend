@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
 @RequiredArgsConstructor
@@ -27,12 +28,15 @@ public class AuthServiceImpl implements AuthService {
     private final SocialAccountService socialAccountService;
     private final JwtUtils jwtUtils;
 
+    private final long OTP_EXPIRY_MINUTES = 10;
+    private final long REFRESH_EXPIRY_DAYS = 365;
+
     @Override
     public void register(RegisterRequest request) {
         User user = userService.createUser(request.getName(), request.getEmail(), request.getPassword());
 
         String code = generateRandom4Digits();
-        otpService.createOtp(user, "VERIFICATION", code, LocalDateTime.now().plusMinutes(10));
+        otpService.createOtp(user, "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
 
         // TODO: send email with 'code'
     }
@@ -62,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
         String refreshStr = jwtUtils.generateRefreshTokenString();
-        RefreshToken refresh = refreshTokenService.createRefreshToken(user, refreshStr, 365L);
+        RefreshToken refresh = refreshTokenService.createRefreshToken(user, refreshStr, REFRESH_EXPIRY_DAYS);
 
         return new LoginResponse(accessToken, refreshStr);
     }
@@ -71,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
     public void forgotPassword(ForgotPasswordRequest request) {
         userService.findByEmail(request.getEmail()).ifPresent(user -> {
             String code = generateRandom4Digits();
-            otpService.createOtp(user, "RESET_PASSWORD", code, LocalDateTime.now().plusMinutes(10));
+            otpService.createOtp(user, "RESET_PASSWORD", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
             // TODO: send email with code
         });
     }
@@ -103,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
         User user = refresh.getUser();
 
         String newRefresh = jwtUtils.generateRefreshTokenString();
-        refreshTokenService.rotateRefreshToken(refresh, newRefresh, 365L);
+        refreshTokenService.rotateRefreshToken(refresh, newRefresh, REFRESH_EXPIRY_DAYS);
 
         String newAccessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
 
@@ -112,7 +116,6 @@ public class AuthServiceImpl implements AuthService {
 
 
     private String generateRandom4Digits() {
-        // ex
         int code = (int) (Math.random() * 9000) + 1000;
         return String.valueOf(code);
     }
