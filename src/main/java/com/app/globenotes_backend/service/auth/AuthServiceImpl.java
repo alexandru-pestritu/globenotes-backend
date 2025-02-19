@@ -58,6 +58,29 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
+    @Override
+    public void resendOtp(ResendOtpRequest request) {
+        User user = userService.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("User not found"));
+
+        if (user.getIsVerified()) {
+            throw new ApiException("Email already verified");
+        }
+
+        String code = generateRandom4Digits();
+        otpService.createOtp(user, "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
+
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("NAME", user.getName());
+        placeholders.put("OTP_CODE", code);
+
+        emailService.sendTemplatedEmail(
+                user.getEmail(),
+                "email-verification",
+                placeholders
+            );
+        }
+
 
     @Override
     public void verifyEmail(OtpVerifyRequest request) {
@@ -83,7 +106,7 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
         String refreshStr = jwtUtils.generateRefreshTokenString();
-        RefreshToken refresh = refreshTokenService.createRefreshToken(user, refreshStr, REFRESH_EXPIRY_DAYS);
+        refreshTokenService.createRefreshToken(user, refreshStr, REFRESH_EXPIRY_DAYS);
 
         return new LoginResponse(accessToken, refreshStr);
     }

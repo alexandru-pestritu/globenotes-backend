@@ -38,6 +38,19 @@ public class AuthController {
         );
     }
 
+    @PostMapping("/register/resend-otp")
+    public ResponseEntity<HttpResponse> resendOtp(@Valid @RequestBody ResendOtpRequest request) {
+        authService.resendOtp(request);
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(Instant.now().toString())
+                        .message("We sent another OTP to your email.")
+                        .status(HttpStatus.OK)
+                        .statusCode(HttpStatus.OK.value())
+                        .build()
+        );
+    }
+
     @PostMapping("/verify-email")
     public ResponseEntity<HttpResponse> verifyEmail(@Valid @RequestBody OtpVerifyRequest request) {
         authService.verifyEmail(request);

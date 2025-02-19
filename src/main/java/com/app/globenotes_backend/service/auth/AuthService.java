@@ -7,6 +7,8 @@ public interface AuthService {
 
     void register(RegisterRequest request);
 
+    void resendOtp(ResendOtpRequest request);
+
     void verifyEmail(OtpVerifyRequest request);
 
     LoginResponse login(LoginRequest request);
