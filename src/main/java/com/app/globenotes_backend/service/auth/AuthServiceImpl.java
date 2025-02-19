@@ -130,6 +130,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public void verifyForgotPasswordOtp(OtpVerifyRequest request) {
+        User user = userService.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("User not found"));
+        OtpCode otp = otpService.validateOtp(user, "RESET_PASSWORD", request.getCode());
+        otpService.markUsed(otp);
+    }
+
+    @Override
     public void resetPassword(ResetPasswordRequest request) {
         User user = userService.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException("User not found"));

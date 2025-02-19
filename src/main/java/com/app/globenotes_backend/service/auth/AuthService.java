@@ -15,6 +15,8 @@ public interface AuthService {
 
     void forgotPassword(ForgotPasswordRequest request);
 
+    void verifyForgotPasswordOtp(OtpVerifyRequest request);
+
     void resetPassword(ResetPasswordRequest request);
 
     LoginResponse loginWithGoogle(SocialLoginRequest request);

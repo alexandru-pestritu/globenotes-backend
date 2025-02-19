@@ -95,6 +95,19 @@ public class AuthController {
         );
     }
 
+    @PostMapping("/forgot-password/verify-otp")
+    public ResponseEntity<HttpResponse> verifyForgotPasswordOtp(@Valid @RequestBody OtpVerifyRequest request) {
+        authService.verifyForgotPasswordOtp(request);
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(Instant.now().toString())
+                        .message("OTP verified successfully.")
+                        .status(HttpStatus.OK)
+                        .statusCode(HttpStatus.OK.value())
+                        .build()
+        );
+    }
+
     @PostMapping("/reset-password")
     public ResponseEntity<HttpResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);
