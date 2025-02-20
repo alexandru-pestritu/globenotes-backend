@@ -51,11 +51,11 @@ public class AuthServiceImpl implements AuthService {
         placeholders.put("NAME", user.getName());
         placeholders.put("OTP_CODE", code);
 
-        emailService.sendTemplatedEmail(
-                user.getEmail(),
-                "email-verification",
-                placeholders
-        );
+//        emailService.sendTemplatedEmail(
+//                user.getEmail(),
+//                "email-verification",
+//                placeholders
+//        );
     }
 
     @Override
@@ -74,11 +74,11 @@ public class AuthServiceImpl implements AuthService {
         placeholders.put("NAME", user.getName());
         placeholders.put("OTP_CODE", code);
 
-        emailService.sendTemplatedEmail(
-                user.getEmail(),
-                "email-verification",
-                placeholders
-            );
+//        emailService.sendTemplatedEmail(
+//                user.getEmail(),
+//                "email-verification",
+//                placeholders
+//            );
         }
 
 
@@ -121,11 +121,11 @@ public class AuthServiceImpl implements AuthService {
             placeholders.put("NAME", user.getName());
             placeholders.put("OTP_CODE", code);
 
-            emailService.sendTemplatedEmail(
-                    user.getEmail(),
-                    "password-reset",
-                    placeholders
-            );
+//            emailService.sendTemplatedEmail(
+//                    user.getEmail(),
+//                    "password-reset",
+//                    placeholders
+//            );
         });
     }
 
@@ -134,7 +134,6 @@ public class AuthServiceImpl implements AuthService {
         User user = userService.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException("User not found"));
         OtpCode otp = otpService.validateOtp(user, "RESET_PASSWORD", request.getCode());
-        otpService.markUsed(otp);
     }
 
     @Override
