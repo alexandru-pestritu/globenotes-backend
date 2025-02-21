@@ -161,6 +161,7 @@ public class AuthServiceImpl implements AuthService {
             if (user == null) {
                 user = userService.createUser(googleInfo.getName(), googleInfo.getEmail(), null);
                 userService.verifyUser(user);
+                userProfileService.createProfile(user);
             }
             socialAccountService.linkSocialAccount(user, provider, providerId);
 
@@ -196,6 +197,7 @@ public class AuthServiceImpl implements AuthService {
             if (user == null) {
                 user = userService.createUser(fbInfo.getName(), fbInfo.getEmail(), null);
                 userService.verifyUser(user);
+                userProfileService.createProfile(user);
             }
             socialAccountService.linkSocialAccount(user, provider, providerId);
 
