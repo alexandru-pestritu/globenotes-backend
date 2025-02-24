@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 public interface OtpService {
 
-    OtpCode createOtp(User user, String type, String code, LocalDateTime expiresAt);
+    OtpCode createOtp(Long userId, String type, String code, LocalDateTime expiresAt);
 
-    OtpCode validateOtp(User user, String type, String code);
+    OtpCode validateOtp(Long userId, String type, String code);
 
-    void markUsed(OtpCode otp);
+    void markUsed(Long otpId);
 }

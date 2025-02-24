@@ -1,4 +1,4 @@
-package com.app.globenotes_backend.dto.response;
+package com.app.globenotes_backend.dto.authentication;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponse {
+public class Authentication {
     private String accessToken;
     private String refreshToken;
 }

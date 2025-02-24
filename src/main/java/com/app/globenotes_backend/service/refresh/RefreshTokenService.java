@@ -5,11 +5,9 @@ import com.app.globenotes_backend.entity.User;
 
 public interface RefreshTokenService {
 
-    RefreshToken createRefreshToken(User user, String token, long daysValid);
+    RefreshToken createRefreshToken(Long userId, String token, long daysValid);
 
     RefreshToken validateRefreshToken(String token);
 
-    RefreshToken rotateRefreshToken(RefreshToken refreshToken, String newToken, long daysValid);
-
-    void invalidateRefreshToken(RefreshToken refreshToken);
+    RefreshToken rotateRefreshToken(Long refreshTokenId, String newToken);
 }

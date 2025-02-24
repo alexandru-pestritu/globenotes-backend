@@ -1,21 +1,16 @@
 package com.app.globenotes_backend.service.userProfile;
 
+import com.app.globenotes_backend.dto.userProfile.UserProfileDTO;
 import com.app.globenotes_backend.entity.User;
 import com.app.globenotes_backend.entity.UserProfile;
 
 import java.util.Optional;
 
 public interface UserProfileService {
-    UserProfile createProfile(User user);
+    UserProfileDTO createProfile(Long userId);
 
-    Optional<UserProfile> getProfileByUserId(Long userId);
+    UserProfileDTO getProfileByUserId(Long userId);
 
-    UserProfile updateProfilePhoto(Long userProfileId, String newPhotoUrl);
-
-    UserProfile updateCoverPhoto(Long userProfileId, String newCoverUrl);
-
-    UserProfile updateBio(Long userProfileId, String newBio);
-
-    UserProfile updateLocation(Long userProfileId, Long locationId);
+    void updateProfilePhoto(Long userProfileId, String newPhotoUrl);
 
 }

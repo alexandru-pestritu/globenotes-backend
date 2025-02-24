@@ -42,7 +42,6 @@ public class JwtUtils {
             verifier.verify(token);
             return true;
         } catch (JWTVerificationException e) {
-            log.error("JWT verification error: {}", e.getMessage());
             return false;
         }
     }

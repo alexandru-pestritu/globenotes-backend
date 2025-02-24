@@ -1,9 +1,10 @@
 package com.app.globenotes_backend.service.auth;
 
-import com.app.globenotes_backend.dto.request.*;
-import com.app.globenotes_backend.dto.response.LoginResponse;
+import com.app.globenotes_backend.dto.authentication.Authentication;
 import com.app.globenotes_backend.dto.social.FacebookUserInfo;
 import com.app.globenotes_backend.dto.social.GoogleUserInfo;
+import com.app.globenotes_backend.dto.user.UserDTO;
+import com.app.globenotes_backend.dto.userProfile.UserProfileDTO;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.entity.*;
 import com.app.globenotes_backend.service.email.EmailService;
@@ -40,12 +41,12 @@ public class AuthServiceImpl implements AuthService {
     private final long REFRESH_EXPIRY_DAYS = 365;
 
     @Override
-    public void register(RegisterRequest request) {
-        User user = userService.createUser(request.getName(), request.getEmail(), request.getPassword());
-        userProfileService.createProfile(user);
+    public void register(String name, String email, String password) {
+        UserDTO user = userService.createUser(name, email, password);
+        userProfileService.createProfile(user.getId());
 
         String code = generateRandom4Digits();
-        otpService.createOtp(user, "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
+        otpService.createOtp(user.getId(), "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
 
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("NAME", user.getName());
@@ -59,16 +60,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void resendOtp(ResendOtpRequest request) {
-        User user = userService.findByEmail(request.getEmail())
+    public void resendOtp(String email) {
+        UserDTO user = userService.findByEmail(email)
                 .orElseThrow(() -> new ApiException("User not found"));
 
-        if (user.getIsVerified()) {
+        if (user.isVerified()) {
             throw new ApiException("Email already verified");
         }
 
         String code = generateRandom4Digits();
-        otpService.createOtp(user, "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
+        otpService.createOtp(user.getId(), "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
 
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("NAME", user.getName());
@@ -83,39 +84,39 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public void verifyEmail(OtpVerifyRequest request) {
-        User user = userService.findByEmail(request.getEmail())
+    public void verifyEmail(String email, String code) {
+        UserDTO user = userService.findByEmail(email)
                 .orElseThrow(() -> new ApiException("User not found"));
-        OtpCode otp = otpService.validateOtp(user, "VERIFICATION", request.getCode());
-        userService.verifyUser(user);
-        otpService.markUsed(otp);
+        OtpCode otp = otpService.validateOtp(user.getId(), "VERIFICATION", code);
+        userService.verifyUser(user.getId());
+        otpService.markUsed(otp.getId());
     }
 
     @Override
-    public LoginResponse login(LoginRequest request) {
-        User user = userService.findByEmail(request.getEmail())
+    public Authentication login(String email, String password) {
+        UserDTO user = userService.findByEmail(email)
                 .orElseThrow(() -> new ApiException("User not found"));
 
-        if (!user.getIsVerified()) {
+        if (!user.isVerified()) {
             throw new ApiException("Email not verified");
         }
 
-        if (!userService.checkPassword(user, request.getPassword())) {
+        if (!userService.checkPassword(user.getId(), password)) {
             throw new ApiException("Invalid credentials");
         }
 
         String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
         String refreshStr = jwtUtils.generateRefreshTokenString();
-        refreshTokenService.createRefreshToken(user, refreshStr, REFRESH_EXPIRY_DAYS);
+        refreshTokenService.createRefreshToken(user.getId(), refreshStr, REFRESH_EXPIRY_DAYS);
 
-        return new LoginResponse(accessToken, refreshStr);
+        return new Authentication(accessToken, refreshStr);
     }
 
     @Override
-    public void forgotPassword(ForgotPasswordRequest request) {
-        userService.findByEmail(request.getEmail()).ifPresent(user -> {
+    public void forgotPassword(String email) {
+        userService.findByEmail(email).ifPresent(user -> {
             String code = generateRandom4Digits();
-            otpService.createOtp(user, "RESET_PASSWORD", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
+            otpService.createOtp(user.getId(), "RESET_PASSWORD", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
 
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("NAME", user.getName());
@@ -130,103 +131,91 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void verifyForgotPasswordOtp(OtpVerifyRequest request) {
-        User user = userService.findByEmail(request.getEmail())
+    public void verifyForgotPasswordOtp(String email, String code) {
+        UserDTO user = userService.findByEmail(email)
                 .orElseThrow(() -> new ApiException("User not found"));
-        OtpCode otp = otpService.validateOtp(user, "RESET_PASSWORD", request.getCode());
+        OtpCode otp = otpService.validateOtp(user.getId(), "RESET_PASSWORD", code);
     }
 
     @Override
-    public void resetPassword(ResetPasswordRequest request) {
-        User user = userService.findByEmail(request.getEmail())
+    public void resetPassword(String email, String otpCode, String newPassword) {
+        UserDTO user = userService.findByEmail(email)
                 .orElseThrow(() -> new ApiException("User not found"));
-        OtpCode otp = otpService.validateOtp(user, "RESET_PASSWORD", request.getOtpCode());
-        userService.updatePassword(user, request.getNewPassword());
-        otpService.markUsed(otp);
+        OtpCode otp = otpService.validateOtp(user.getId(), "RESET_PASSWORD", otpCode);
+        userService.updatePassword(user.getId(), newPassword);
+        otpService.markUsed(otp.getId());
     }
 
     @Override
-    public LoginResponse loginWithGoogle(SocialLoginRequest request) {
-        GoogleUserInfo googleInfo = socialAuthUtil.validateGoogleToken(request.getIdToken());
+    public Authentication loginWithGoogle(String idToken) {
+        GoogleUserInfo googleInfo = socialAuthUtil.validateGoogleToken(idToken);
 
         String provider = "GOOGLE";
         String providerId = googleInfo.getSub();
 
         Optional<UserSocialAccount> socialOpt = socialAccountService.findByProviderAndProviderId(provider, providerId);
-        User user;
-        if (socialOpt.isPresent()) {
-            user = socialOpt.get().getUser();
-        } else {
-            user = userService.findByEmail(googleInfo.getEmail()).orElse(null);
+        UserDTO user = userService.findByEmail(googleInfo.getEmail()).orElse(null);
             if (user == null) {
                 user = userService.createUser(googleInfo.getName(), googleInfo.getEmail(), null);
-                userService.verifyUser(user);
-                userProfileService.createProfile(user);
+                userService.verifyUser(user.getId());
+                userProfileService.createProfile(user.getId());
             }
-            socialAccountService.linkSocialAccount(user, provider, providerId);
+            socialAccountService.linkSocialAccount(user.getId(), provider, providerId);
 
             if (googleInfo.getPicture() != null) {
-                UserProfile profile = userProfileService.getProfileByUserId(user.getId())
-                        .orElseThrow(() -> new ApiException("UserProfile not found."));
-                if(profile.getProfilePhotoUrl() == null)
+                UserProfileDTO profile = userProfileService.getProfileByUserId(user.getId());
+                if (profile.getProfilePhotoUrl() == null)
                     userProfileService.updateProfilePhoto(profile.getId(), googleInfo.getPicture());
             }
-        }
 
         String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
         String refresh = jwtUtils.generateRefreshTokenString();
-        refreshTokenService.createRefreshToken(user, refresh, REFRESH_EXPIRY_DAYS);
+        refreshTokenService.createRefreshToken(user.getId(), refresh, REFRESH_EXPIRY_DAYS);
 
-        return new LoginResponse(accessToken, refresh);
+        return new Authentication(accessToken, refresh);
     }
 
 
     @Override
-    public LoginResponse loginWithFacebook(SocialLoginRequest request) {
-        FacebookUserInfo fbInfo = socialAuthUtil.validateFacebookToken(request.getIdToken());
+    public Authentication loginWithFacebook(String idToken) {
+        FacebookUserInfo fbInfo = socialAuthUtil.validateFacebookToken(idToken);
 
         String provider = "FACEBOOK";
         String providerId = fbInfo.getId();
 
         Optional<UserSocialAccount> socialOpt = socialAccountService.findByProviderAndProviderId(provider, providerId);
-        User user;
-        if (socialOpt.isPresent()) {
-            user = socialOpt.get().getUser();
-        } else {
-            user = userService.findByEmail(fbInfo.getEmail()).orElse(null);
+        UserDTO user = userService.findByEmail(fbInfo.getEmail()).orElse(null);
             if (user == null) {
                 user = userService.createUser(fbInfo.getName(), fbInfo.getEmail(), null);
-                userService.verifyUser(user);
-                userProfileService.createProfile(user);
+                userService.verifyUser(user.getId());
+                userProfileService.createProfile(user.getId());
             }
-            socialAccountService.linkSocialAccount(user, provider, providerId);
+            socialAccountService.linkSocialAccount(user.getId(), provider, providerId);
 
             if (fbInfo.getPicture() != null) {
-                UserProfile profile = userProfileService.getProfileByUserId(user.getId())
-                        .orElseThrow(() -> new ApiException("UserProfile not found."));
-                if(profile.getProfilePhotoUrl() == null)
+                UserProfileDTO profile = userProfileService.getProfileByUserId(user.getId());
+                if (profile.getProfilePhotoUrl() == null)
                     userProfileService.updateProfilePhoto(profile.getId(), fbInfo.getPicture());
             }
-        }
 
         String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
         String refresh = jwtUtils.generateRefreshTokenString();
-        refreshTokenService.createRefreshToken(user, refresh, REFRESH_EXPIRY_DAYS);
+        refreshTokenService.createRefreshToken(user.getId(), refresh, REFRESH_EXPIRY_DAYS);
 
-        return new LoginResponse(accessToken, refresh);
+        return new Authentication(accessToken, refresh);
     }
 
     @Override
-    public LoginResponse refreshToken(RefreshRequest request) {
-        RefreshToken refresh = refreshTokenService.validateRefreshToken(request.getRefreshToken());
+    public Authentication refreshToken(String refreshToken) {
+        RefreshToken refresh = refreshTokenService.validateRefreshToken(refreshToken);
         User user = refresh.getUser();
 
         String newRefresh = jwtUtils.generateRefreshTokenString();
-        refreshTokenService.rotateRefreshToken(refresh, newRefresh, REFRESH_EXPIRY_DAYS);
+        refreshTokenService.rotateRefreshToken(refresh.getId(), newRefresh);
 
         String newAccessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
 
-        return new LoginResponse(newAccessToken, newRefresh);
+        return new Authentication(newAccessToken, newRefresh);
     }
 
 

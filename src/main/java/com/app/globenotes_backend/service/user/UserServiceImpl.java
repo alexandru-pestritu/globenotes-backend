@@ -1,5 +1,7 @@
 package com.app.globenotes_backend.service.user;
 
+import com.app.globenotes_backend.dto.user.UserDTO;
+import com.app.globenotes_backend.dto.user.UserMapper;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +17,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Override
-    public User createUser(String name, String email, String rawPassword) {
+    public UserDTO createUser(String name, String email, String rawPassword) {
         if (userRepository.existsByEmail(email)) {
             throw new ApiException("Email already in use");
         }
@@ -27,27 +30,36 @@ public class UserServiceImpl implements UserService {
         if(rawPassword != null)
             user.setPassword(passwordEncoder.encode(rawPassword));
         user.setIsVerified(false);
-        return userRepository.save(user);
+        return userMapper.toDTO(userRepository.save(user));
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<UserDTO> findByEmail(String email) {
+        return userRepository.findByEmail(email).map(userMapper::toDTO);
     }
 
     @Override
-    public void verifyUser(User user) {
+    public void verifyUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found"));
+
         user.setIsVerified(true);
         userRepository.save(user);
     }
 
     @Override
-    public boolean checkPassword(User user, String rawPassword) {
+    public boolean checkPassword(Long userId, String rawPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found"));
+
         return passwordEncoder.matches(rawPassword, user.getPassword());
     }
 
     @Override
-    public void updatePassword(User user, String newRawPassword) {
+    public void updatePassword(Long userId, String newRawPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found"));
+
         user.setPassword(passwordEncoder.encode(newRawPassword));
         userRepository.save(user);
     }

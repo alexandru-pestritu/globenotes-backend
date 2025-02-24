@@ -1,27 +1,26 @@
 package com.app.globenotes_backend.service.auth;
 
-import com.app.globenotes_backend.dto.request.*;
-import com.app.globenotes_backend.dto.response.LoginResponse;
+import com.app.globenotes_backend.dto.authentication.Authentication;
 
 public interface AuthService {
 
-    void register(RegisterRequest request);
+    void register(String name, String email, String password);
 
-    void resendOtp(ResendOtpRequest request);
+    void resendOtp(String email);
 
-    void verifyEmail(OtpVerifyRequest request);
+    void verifyEmail(String email, String code);
 
-    LoginResponse login(LoginRequest request);
+    Authentication login(String email, String password);
 
-    void forgotPassword(ForgotPasswordRequest request);
+    void forgotPassword(String email);
 
-    void verifyForgotPasswordOtp(OtpVerifyRequest request);
+    void verifyForgotPasswordOtp(String email, String code);
 
-    void resetPassword(ResetPasswordRequest request);
+    void resetPassword(String email, String otpCode, String newPassword);
 
-    LoginResponse loginWithGoogle(SocialLoginRequest request);
+    Authentication loginWithGoogle(String idToken);
 
-    LoginResponse loginWithFacebook(SocialLoginRequest request);
+    Authentication loginWithFacebook(String idToken);
 
-    LoginResponse refreshToken(RefreshRequest request);
+    Authentication refreshToken(String refreshToken);
 }

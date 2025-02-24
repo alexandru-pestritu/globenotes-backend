@@ -4,6 +4,7 @@ import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.entity.OtpCode;
 import com.app.globenotes_backend.entity.User;
 import com.app.globenotes_backend.repository.OtpCodeRepository;
+import com.app.globenotes_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +17,17 @@ import java.util.List;
 public class OtpServiceImpl implements OtpService {
 
     private final OtpCodeRepository otpCodeRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public OtpCode createOtp(User user, String type, String code, LocalDateTime expiresAt) {
-        List<OtpCode> oldOtps = otpCodeRepository
-                .findAllActiveByUserAndType(user.getId(), type, LocalDateTime.now(ZoneOffset.UTC));
+    public OtpCode createOtp(Long userId, String type, String code, LocalDateTime expiresAt) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found"));
 
-        for (OtpCode old : oldOtps) {
+        List<OtpCode> oldOtpCodes = otpCodeRepository
+                .findAllActiveByUserAndType(userId, type, LocalDateTime.now(ZoneOffset.UTC));
+
+        for (OtpCode old : oldOtpCodes) {
             old.setUsedAt(LocalDateTime.now(ZoneOffset.UTC));
             otpCodeRepository.save(old);
         }
@@ -37,7 +42,10 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
-    public OtpCode validateOtp(User user, String type, String code) {
+    public OtpCode validateOtp(Long userId, String type, String code) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found"));
+
         OtpCode otp = otpCodeRepository
                 .findByUserIdAndTypeAndUsedAtIsNullAndExpiresAtAfter(user.getId(), type, LocalDateTime.now(ZoneOffset.UTC))
                 .orElseThrow(() -> new ApiException("OTP invalid or expired"));
@@ -49,7 +57,10 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
-    public void markUsed(OtpCode otp) {
+    public void markUsed(Long otpId) {
+        OtpCode otp = otpCodeRepository.findById(otpId)
+                .orElseThrow(() -> new ApiException("OTP not found"));
+
         otp.setUsedAt(LocalDateTime.now(ZoneOffset.UTC));
         otpCodeRepository.save(otp);
     }
