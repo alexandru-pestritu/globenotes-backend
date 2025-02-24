@@ -1,21 +1,19 @@
-package com.app.globenotes_backend.model;
+package com.app.globenotes_backend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 
 @Entity
-@Table(name = "journals")
+@Table(name = "user_social_accounts")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Journal {
+public class UserSocialAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,29 +23,14 @@ public class Journal {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(length = 50, nullable = false)
+    private String provider;
+
     @Column(length = 255, nullable = false)
-    private String name;
-
-    @Lob
-    private String shortSummary;
-
-    @ManyToOne
-    @JoinColumn(name = "trip_location_id")
-    private Location tripLocation;
-
-    private LocalDate startDate;
-    private LocalDate endDate;
-
-    @Column(length = 500)
-    private String coverPhotoUrl;
-
-    private Boolean remindersEnabled = false;
+    private String providerId;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "journal", cascade = CascadeType.ALL)
-    private List<Moment> moments;
 
     @PrePersist
     public void onPrePersist() {

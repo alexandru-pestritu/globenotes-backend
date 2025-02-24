@@ -1,7 +1,7 @@
 package com.app.globenotes_backend.service.location;
 
 import com.app.globenotes_backend.exception.ApiException;
-import com.app.globenotes_backend.model.Location;
+import com.app.globenotes_backend.entity.Location;
 import com.app.globenotes_backend.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

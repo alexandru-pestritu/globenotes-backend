@@ -1,6 +1,6 @@
 package com.app.globenotes_backend.service.location;
 
-import com.app.globenotes_backend.model.Location;
+import com.app.globenotes_backend.entity.Location;
 
 import java.util.List;
 import java.util.Optional;

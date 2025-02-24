@@ -1,7 +1,7 @@
 package com.app.globenotes_backend.service.refresh;
 
-import com.app.globenotes_backend.model.RefreshToken;
-import com.app.globenotes_backend.model.User;
+import com.app.globenotes_backend.entity.RefreshToken;
+import com.app.globenotes_backend.entity.User;
 
 public interface RefreshTokenService {
 

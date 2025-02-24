@@ -1,4 +1,4 @@
-package com.app.globenotes_backend.model;
+package com.app.globenotes_backend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,25 +9,32 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Entity
-@Table(name = "moment_media")
+@Table(name = "user_profiles")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MomentMedia {
+public class UserProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(length = 500)
+    private String profilePhotoUrl;
+
+    @Column(length = 500)
+    private String coverPhotoUrl;
+
+    @Lob
+    private String bio;
+
     @ManyToOne
-    @JoinColumn(name = "moment_id", nullable = false)
-    private Moment moment;
-
-    @Column(length = 500, nullable = false)
-    private String mediaUrl;
-
-    @Column(length = 50)
-    private String mediaType;
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

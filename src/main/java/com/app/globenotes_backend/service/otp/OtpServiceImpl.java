@@ -1,8 +1,8 @@
 package com.app.globenotes_backend.service.otp;
 
 import com.app.globenotes_backend.exception.ApiException;
-import com.app.globenotes_backend.model.OtpCode;
-import com.app.globenotes_backend.model.User;
+import com.app.globenotes_backend.entity.OtpCode;
+import com.app.globenotes_backend.entity.User;
 import com.app.globenotes_backend.repository.OtpCodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

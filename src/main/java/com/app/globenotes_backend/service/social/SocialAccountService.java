@@ -1,7 +1,7 @@
 package com.app.globenotes_backend.service.social;
 
-import com.app.globenotes_backend.model.User;
-import com.app.globenotes_backend.model.UserSocialAccount;
+import com.app.globenotes_backend.entity.User;
+import com.app.globenotes_backend.entity.UserSocialAccount;
 
 import java.util.Optional;
 

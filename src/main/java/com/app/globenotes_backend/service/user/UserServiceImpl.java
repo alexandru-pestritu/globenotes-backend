@@ -1,7 +1,7 @@
 package com.app.globenotes_backend.service.user;
 
 import com.app.globenotes_backend.exception.ApiException;
-import com.app.globenotes_backend.model.User;
+import com.app.globenotes_backend.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

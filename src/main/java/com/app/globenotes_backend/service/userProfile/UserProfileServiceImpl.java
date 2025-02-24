@@ -1,9 +1,9 @@
 package com.app.globenotes_backend.service.userProfile;
 
 import com.app.globenotes_backend.exception.ApiException;
-import com.app.globenotes_backend.model.Location;
-import com.app.globenotes_backend.model.User;
-import com.app.globenotes_backend.model.UserProfile;
+import com.app.globenotes_backend.entity.Location;
+import com.app.globenotes_backend.entity.User;
+import com.app.globenotes_backend.entity.UserProfile;
 import com.app.globenotes_backend.repository.UserProfileRepository;
 import com.app.globenotes_backend.service.location.LocationService;
 import lombok.RequiredArgsConstructor;

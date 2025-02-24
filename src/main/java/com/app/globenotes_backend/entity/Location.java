@@ -1,4 +1,4 @@
-package com.app.globenotes_backend.model;
+package com.app.globenotes_backend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,32 +9,34 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Entity
-@Table(name = "user_profiles")
+@Table(name = "location")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfile {
+public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Double latitude;
+    private Double longitude;
 
     @Column(length = 500)
-    private String profilePhotoUrl;
+    private String formattedAddress;
 
-    @Column(length = 500)
-    private String coverPhotoUrl;
+    @Column(length = 100)
+    private String city;
 
-    @Lob
-    private String bio;
+    @Column(length = 100)
+    private String state;
+
+    @Column(length = 255)
+    private String googlePlaceId;
 
     @ManyToOne
-    @JoinColumn(name = "location_id")
-    private Location location;
+    @JoinColumn(name = "country_id")
+    private Country country;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -49,4 +51,5 @@ public class UserProfile {
     public void onPreUpdate() {
         this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
     }
+
 }

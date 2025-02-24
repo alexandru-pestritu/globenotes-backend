@@ -1,6 +1,6 @@
 package com.app.globenotes_backend.service.user;
 
-import com.app.globenotes_backend.model.User;
+import com.app.globenotes_backend.entity.User;
 
 import java.util.Optional;
 

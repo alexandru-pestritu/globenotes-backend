@@ -1,7 +1,7 @@
 package com.app.globenotes_backend.service.otp;
 
-import com.app.globenotes_backend.model.OtpCode;
-import com.app.globenotes_backend.model.User;
+import com.app.globenotes_backend.entity.OtpCode;
+import com.app.globenotes_backend.entity.User;
 
 import java.time.LocalDateTime;
 

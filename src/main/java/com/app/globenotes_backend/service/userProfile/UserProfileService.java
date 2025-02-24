@@ -1,7 +1,7 @@
 package com.app.globenotes_backend.service.userProfile;
 
-import com.app.globenotes_backend.model.User;
-import com.app.globenotes_backend.model.UserProfile;
+import com.app.globenotes_backend.entity.User;
+import com.app.globenotes_backend.entity.UserProfile;
 
 import java.util.Optional;
 

@@ -5,7 +5,7 @@ import com.app.globenotes_backend.dto.response.LoginResponse;
 import com.app.globenotes_backend.dto.social.FacebookUserInfo;
 import com.app.globenotes_backend.dto.social.GoogleUserInfo;
 import com.app.globenotes_backend.exception.ApiException;
-import com.app.globenotes_backend.model.*;
+import com.app.globenotes_backend.entity.*;
 import com.app.globenotes_backend.service.email.EmailService;
 import com.app.globenotes_backend.service.otp.OtpService;
 import com.app.globenotes_backend.service.refresh.RefreshTokenService;
