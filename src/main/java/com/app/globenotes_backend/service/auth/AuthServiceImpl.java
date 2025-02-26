@@ -18,6 +18,8 @@ import com.app.globenotes_backend.util.SocialAuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
@@ -42,14 +44,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void register(String name, String email, String password) {
-        UserDTO user = userService.createUser(name, email, password);
-        userProfileService.createProfile(user.getId());
+        UserDTO user = userService.createUser(email, password);
+        UserProfileDTO userProfile = userProfileService.createProfile(user.getId(), name);
 
         String code = generateRandom4Digits();
-        otpService.createOtp(user.getId(), "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
+        otpService.createOtp(user.getId(), "VERIFICATION", code, Instant.now().plus(Duration.ofMinutes(OTP_EXPIRY_MINUTES)));
 
         Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("NAME", user.getName());
+        placeholders.put("NAME", userProfile.getName());
         placeholders.put("OTP_CODE", code);
 
 //        emailService.sendTemplatedEmail(
@@ -68,11 +70,13 @@ public class AuthServiceImpl implements AuthService {
             throw new ApiException("Email already verified");
         }
 
+        UserProfileDTO userProfile = userProfileService.getProfileByUserId(user.getId());
+
         String code = generateRandom4Digits();
-        otpService.createOtp(user.getId(), "VERIFICATION", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
+        otpService.createOtp(user.getId(), "VERIFICATION", code, Instant.now().plus(Duration.ofMinutes(OTP_EXPIRY_MINUTES)));
 
         Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("NAME", user.getName());
+        placeholders.put("NAME", userProfile.getName());
         placeholders.put("OTP_CODE", code);
 
 //        emailService.sendTemplatedEmail(
@@ -116,10 +120,12 @@ public class AuthServiceImpl implements AuthService {
     public void forgotPassword(String email) {
         userService.findByEmail(email).ifPresent(user -> {
             String code = generateRandom4Digits();
-            otpService.createOtp(user.getId(), "RESET_PASSWORD", code, LocalDateTime.now(ZoneOffset.UTC).plusMinutes(OTP_EXPIRY_MINUTES));
+            otpService.createOtp(user.getId(), "RESET_PASSWORD", code, Instant.now().plus(Duration.ofMinutes(OTP_EXPIRY_MINUTES)));
+
+            UserProfileDTO userProfile = userProfileService.getProfileByUserId(user.getId());
 
             Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("NAME", user.getName());
+            placeholders.put("NAME", userProfile.getName());
             placeholders.put("OTP_CODE", code);
 
 //            emailService.sendTemplatedEmail(
@@ -155,18 +161,20 @@ public class AuthServiceImpl implements AuthService {
 
         Optional<UserSocialAccount> socialOpt = socialAccountService.findByProviderAndProviderId(provider, providerId);
         UserDTO user = userService.findByEmail(googleInfo.getEmail()).orElse(null);
-            if (user == null) {
-                user = userService.createUser(googleInfo.getName(), googleInfo.getEmail(), null);
-                userService.verifyUser(user.getId());
-                userProfileService.createProfile(user.getId());
-            }
+        if (user == null) {
+            user = userService.createUser(googleInfo.getEmail(), null);
+            userService.verifyUser(user.getId());
+            userProfileService.createProfile(user.getId(), googleInfo.getName());
+        }
+
+        if(socialOpt.isEmpty())
             socialAccountService.linkSocialAccount(user.getId(), provider, providerId);
 
-            if (googleInfo.getPicture() != null) {
-                UserProfileDTO profile = userProfileService.getProfileByUserId(user.getId());
-                if (profile.getProfilePhotoUrl() == null)
-                    userProfileService.updateProfilePhoto(profile.getId(), googleInfo.getPicture());
-            }
+        if (googleInfo.getPicture() != null) {
+            UserProfileDTO profile = userProfileService.getProfileByUserId(user.getId());
+            if (profile.getProfilePhotoUrl() == null)
+                userProfileService.updateProfilePhoto(profile.getId(), googleInfo.getPicture());
+        }
 
         String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
         String refresh = jwtUtils.generateRefreshTokenString();
@@ -185,18 +193,20 @@ public class AuthServiceImpl implements AuthService {
 
         Optional<UserSocialAccount> socialOpt = socialAccountService.findByProviderAndProviderId(provider, providerId);
         UserDTO user = userService.findByEmail(fbInfo.getEmail()).orElse(null);
-            if (user == null) {
-                user = userService.createUser(fbInfo.getName(), fbInfo.getEmail(), null);
-                userService.verifyUser(user.getId());
-                userProfileService.createProfile(user.getId());
-            }
+        if (user == null) {
+            user = userService.createUser(fbInfo.getEmail(), null);
+            userService.verifyUser(user.getId());
+            userProfileService.createProfile(user.getId(), fbInfo.getName());
+        }
+
+        if(socialOpt.isEmpty())
             socialAccountService.linkSocialAccount(user.getId(), provider, providerId);
 
-            if (fbInfo.getPicture() != null) {
-                UserProfileDTO profile = userProfileService.getProfileByUserId(user.getId());
-                if (profile.getProfilePhotoUrl() == null)
-                    userProfileService.updateProfilePhoto(profile.getId(), fbInfo.getPicture());
-            }
+        if (fbInfo.getPicture() != null) {
+            UserProfileDTO profile = userProfileService.getProfileByUserId(user.getId());
+            if (profile.getProfilePhotoUrl() == null)
+                userProfileService.updateProfilePhoto(profile.getId(), fbInfo.getPicture());
+        }
 
         String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
         String refresh = jwtUtils.generateRefreshTokenString();

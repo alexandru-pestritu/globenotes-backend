@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -29,17 +30,20 @@ public class UserSocialAccount {
     @Column(length = 255, nullable = false)
     private String providerId;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @Column(nullable=false)
+    private Instant createdAt;
+
+    @Column(nullable=false)
+    private Instant updatedAt;
 
     @PrePersist
     public void onPrePersist() {
-        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
-        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     @PreUpdate
     public void onPreUpdate() {
-        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.updatedAt = Instant.now();
     }
 }

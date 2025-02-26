@@ -2,6 +2,7 @@ package com.app.globenotes_backend.dto.journal;
 
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Getter
@@ -15,8 +16,12 @@ public class JournalDTO {
     private String name;
     private String shortSummary;
     private Long tripLocationId;
+    private String coverPhotoUrl;
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean remindersEnabled;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private boolean isDeleted;
 }
 

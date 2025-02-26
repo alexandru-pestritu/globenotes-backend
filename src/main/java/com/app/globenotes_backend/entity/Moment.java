@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -34,26 +35,29 @@ public class Moment {
     @Lob
     private String description;
 
-    private LocalDateTime dateTime;
+    private Instant dateTime;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "moment", cascade = CascadeType.ALL)
     private List<MomentMedia> momentMediaList;
 
     @PrePersist
     public void onPrePersist() {
-        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
-        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     @PreUpdate
     public void onPreUpdate() {
-        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.updatedAt = Instant.now();
     }
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -29,12 +30,12 @@ public class OtpCode {
     @Column(length = 50, nullable = false)
     private String type;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime expiresAt;
-    private LocalDateTime usedAt;
+    private Instant createdAt;
+    private Instant expiresAt;
+    private Instant usedAt;
 
     @PrePersist
     public void onPrePersist() {
-        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.createdAt = Instant.now();
     }
 }

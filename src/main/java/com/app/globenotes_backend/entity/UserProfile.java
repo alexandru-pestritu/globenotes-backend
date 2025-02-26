@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -23,6 +24,9 @@ public class UserProfile {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(length = 100, nullable = false)
+    private String name;
+
     @Column(length = 500)
     private String profilePhotoUrl;
 
@@ -36,17 +40,20 @@ public class UserProfile {
     @JoinColumn(name = "location_id")
     private Location location;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    private Instant createdAt;
+
+    @Column(nullable = false)
+    private Instant updatedAt;
 
     @PrePersist
     public void onPrePersist() {
-        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
-        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     @PreUpdate
     public void onPreUpdate() {
-        this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.updatedAt = Instant.now();
     }
 }

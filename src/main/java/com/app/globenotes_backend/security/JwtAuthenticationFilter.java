@@ -43,12 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Long userId = jwtUtils.getUserIdFromToken(token);
             String email = jwtUtils.getEmailFromToken(token);
 
+            UserPrincipal userPrincipal = new UserPrincipal(userId, email);
+
             UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(
-                            email,
-                            null,
-                            null
-                    );
+                    new UsernamePasswordAuthenticationToken(userPrincipal, null, null);
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
 

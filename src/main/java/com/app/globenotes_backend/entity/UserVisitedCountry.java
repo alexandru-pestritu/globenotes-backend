@@ -25,5 +25,8 @@ public class UserVisitedCountry {
     private Country country;
 
     @Column(nullable = false)
-    private java.time.LocalDateTime visitedAt;
+    private Boolean isDeleted;
+
+    @Column(nullable = false)
+    private java.time.Instant visitedAt;
 }

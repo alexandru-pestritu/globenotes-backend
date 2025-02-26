@@ -22,8 +22,9 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final UserProfileMapper userProfileMapper;
 
     @Override
-    public UserProfileDTO createProfile(Long userId) {
+    public UserProfileDTO createProfile(Long userId, String name) {
         Optional<UserProfile> existing = userProfileRepository.findByUserId(userId);
+
         if (existing.isPresent()) {
             return userProfileMapper.toDTO(existing.get());
         }
@@ -33,6 +34,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         UserProfile profile = new UserProfile();
         profile.setUser(user);
+        profile.setName(name);
         return userProfileMapper.toDTO(userProfileRepository.save(profile));
     }
 

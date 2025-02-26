@@ -1,6 +1,7 @@
 package com.app.globenotes_backend.service.user;
 
 import com.app.globenotes_backend.dto.user.UserDTO;
+import com.app.globenotes_backend.dto.user.UserDetailsDTO;
 import com.app.globenotes_backend.dto.user.UserMapper;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.entity.User;
@@ -20,12 +21,11 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserDTO createUser(String name, String email, String rawPassword) {
+    public UserDTO createUser(String email, String rawPassword) {
         if (userRepository.existsByEmail(email)) {
             throw new ApiException("Email already in use");
         }
         User user = new User();
-        user.setName(name);
         user.setEmail(email);
         if(rawPassword != null)
             user.setPassword(passwordEncoder.encode(rawPassword));
@@ -62,5 +62,11 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(newRawPassword));
         userRepository.save(user);
+    }
+
+    @Override
+    public Optional<UserDetailsDTO> findUserDetailsByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(userMapper::toUserDetailsDTO);
     }
 }

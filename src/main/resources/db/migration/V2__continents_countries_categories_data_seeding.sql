@@ -242,17 +242,17 @@ INSERT INTO countries (name, iso_code, continent_id) VALUES
  ('Zimbabwe', 'ZW', (SELECT id FROM continents WHERE code = 'AF'))
 ;
 
-INSERT INTO categories (name) VALUES ('Worth Seeing');
-INSERT INTO categories (name) VALUES ('Accommodation');
-INSERT INTO categories (name) VALUES ('Nightlife');
-INSERT INTO categories (name) VALUES ('Shopping');
-INSERT INTO categories (name) VALUES ('Culture & Art');
-INSERT INTO categories (name) VALUES ('Transport');
-INSERT INTO categories (name) VALUES ('Coffee & Drinks');
-INSERT INTO categories (name) VALUES ('Food');
-INSERT INTO categories (name) VALUES ('Activity');
-INSERT INTO categories (name) VALUES ('Nature');
-INSERT INTO categories (name) VALUES ('Entertainment');
-INSERT INTO categories (name) VALUES ('Architecture');
-INSERT INTO categories (name) VALUES ('Relax');
-INSERT INTO categories (name) VALUES ('Other');
+INSERT INTO categories (name) VALUES ('worth_seeing');
+INSERT INTO categories (name) VALUES ('accommodation');
+INSERT INTO categories (name) VALUES ('nightlife');
+INSERT INTO categories (name) VALUES ('shopping');
+INSERT INTO categories (name) VALUES ('culture_art');
+INSERT INTO categories (name) VALUES ('transport');
+INSERT INTO categories (name) VALUES ('coffee_drinks');
+INSERT INTO categories (name) VALUES ('food');
+INSERT INTO categories (name) VALUES ('activity');
+INSERT INTO categories (name) VALUES ('nature');
+INSERT INTO categories (name) VALUES ('entertainment');
+INSERT INTO categories (name) VALUES ('architecture');
+INSERT INTO categories (name) VALUES ('relax');
+INSERT INTO categories (name) VALUES ('other');

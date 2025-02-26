@@ -7,7 +7,7 @@ import com.app.globenotes_backend.entity.UserProfile;
 import java.util.Optional;
 
 public interface UserProfileService {
-    UserProfileDTO createProfile(Long userId);
+    UserProfileDTO createProfile(Long userId, String name);
 
     UserProfileDTO getProfileByUserId(Long userId);
 

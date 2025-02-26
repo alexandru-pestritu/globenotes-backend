@@ -2,6 +2,7 @@ package com.app.globenotes_backend.dto.userVisitedCountry;
 
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Getter
@@ -13,6 +14,7 @@ public class UserVisitedCountryDTO {
     private Long id;
     private Long userId;
     private Long countryId;
-    private LocalDate visitedAt;
+    private Instant visitedAt;
+    private Boolean isDeleted;
 }
 

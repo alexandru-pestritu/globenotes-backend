@@ -3,6 +3,7 @@ package com.app.globenotes_backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -26,13 +27,13 @@ public class RefreshToken {
     @Column(nullable = false, unique = true)
     private String token;
 
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 
     @PrePersist
     public void onPrePersist() {
-        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.createdAt = Instant.now();
     }
 
 }

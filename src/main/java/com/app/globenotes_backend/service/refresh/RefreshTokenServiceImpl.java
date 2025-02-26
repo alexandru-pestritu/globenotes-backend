@@ -8,6 +8,8 @@ import com.app.globenotes_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -26,8 +28,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         RefreshToken refresh = RefreshToken.builder()
                 .user(user)
                 .token(token)
-                .createdAt(LocalDateTime.now(ZoneOffset.UTC))
-                .expiresAt(LocalDateTime.now(ZoneOffset.UTC).plusDays(daysValid))
+                .createdAt(Instant.now())
+                .expiresAt(Instant.now().plus(Duration.ofDays(daysValid)))
                 .build();
         return refreshTokenRepository.save(refresh);
     }
@@ -36,7 +38,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public RefreshToken validateRefreshToken(String token) {
         RefreshToken refresh = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ApiException("Refresh token not found"));
-        if (refresh.getExpiresAt().isBefore(LocalDateTime.now(ZoneOffset.UTC))) {
+        if (refresh.getExpiresAt().isBefore(Instant.now())) {
             throw new ApiException("Refresh token expired");
         }
         return refresh;
@@ -48,7 +50,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .orElseThrow(() -> new ApiException("Refresh token not found"));
 
         refresh.setToken(newToken);
-        refresh.setCreatedAt(LocalDateTime.now(ZoneOffset.UTC));
+        refresh.setCreatedAt(Instant.now());
         return refreshTokenRepository.save(refresh);
     }
 }

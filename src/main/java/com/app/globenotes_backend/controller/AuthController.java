@@ -1,8 +1,10 @@
 package com.app.globenotes_backend.controller;
 
+import com.app.globenotes_backend.dto.request.*;
 import com.app.globenotes_backend.dto.response.HttpResponse;
 import com.app.globenotes_backend.dto.authentication.Authentication;
 import com.app.globenotes_backend.service.auth.AuthService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -20,18 +22,13 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<HttpResponse> register(
-            @RequestParam @NotBlank @Size(min = 3, max = 50) String name,
-            @RequestParam @NotBlank @Email String email,
-            @RequestParam @NotBlank @Size(min = 8) String password) {
-
-        authService.register(name, email, password);
+    public ResponseEntity<HttpResponse> register(@Valid @RequestBody RegisterRequest request) {
+        authService.register(request.getName(), request.getEmail(), request.getPassword());
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(Instant.now().toString())
@@ -43,10 +40,8 @@ public class AuthController {
     }
 
     @PostMapping("/register/resend-otp")
-    public ResponseEntity<HttpResponse> resendOtp(
-            @RequestParam @NotBlank @Email String email) {
-
-        authService.resendOtp(email);
+    public ResponseEntity<HttpResponse> resendOtp(@Valid @RequestBody ResendOtpRequest request) {
+        authService.resendOtp(request.getEmail());
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(Instant.now().toString())
@@ -58,11 +53,8 @@ public class AuthController {
     }
 
     @PostMapping("/verify-email")
-    public ResponseEntity<HttpResponse> verifyEmail(
-            @RequestParam @NotBlank @Email String email,
-            @RequestParam @NotBlank String code) {
-
-        authService.verifyEmail(email, code);
+    public ResponseEntity<HttpResponse> verifyEmail(@Valid @RequestBody OtpVerifyRequest request) {
+        authService.verifyEmail(request.getEmail(), request.getCode());
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(Instant.now().toString())
@@ -74,11 +66,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<HttpResponse> login(
-            @RequestParam @NotBlank @Email String email,
-            @RequestParam @NotBlank String password) {
-
-        Authentication resp = authService.login(email, password);
+    public ResponseEntity<HttpResponse> login(@Valid @RequestBody LoginRequest request) {
+        Authentication resp = authService.login(request.getEmail(), request.getPassword());
 
         return ResponseEntity.ok(
                 HttpResponse.builder()
@@ -95,10 +84,8 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<HttpResponse> forgotPassword(
-            @RequestParam @NotBlank @Email String email) {
-
-        authService.forgotPassword(email);
+    public ResponseEntity<HttpResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request.getEmail());
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(Instant.now().toString())
@@ -110,11 +97,8 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password/verify-otp")
-    public ResponseEntity<HttpResponse> verifyForgotPasswordOtp(
-            @RequestParam @NotBlank @Email String email,
-            @RequestParam @NotBlank String code) {
-
-        authService.verifyForgotPasswordOtp(email, code);
+    public ResponseEntity<HttpResponse> verifyForgotPasswordOtp(@Valid @RequestBody OtpVerifyRequest request) {
+        authService.verifyForgotPasswordOtp(request.getEmail(), request.getCode());
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(Instant.now().toString())
@@ -126,12 +110,8 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<HttpResponse> resetPassword(
-            @RequestParam @NotBlank @Email String email,
-            @RequestParam @NotBlank String otpCode,
-            @RequestParam @NotBlank @Size(min = 8) String newPassword) {
-
-        authService.resetPassword(email, otpCode, newPassword);
+    public ResponseEntity<HttpResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getEmail(), request.getOtpCode(), request.getNewPassword());
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(Instant.now().toString())
@@ -143,10 +123,8 @@ public class AuthController {
     }
 
     @PostMapping("/login/google")
-    public ResponseEntity<HttpResponse> loginWithGoogle(
-            @RequestParam @NotBlank String idToken) {
-
-        Authentication resp = authService.loginWithGoogle(idToken);
+    public ResponseEntity<HttpResponse> loginWithGoogle(@Valid @RequestBody SocialLoginRequest request) {
+        Authentication resp = authService.loginWithGoogle(request.getIdToken());
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(Instant.now().toString())
@@ -162,10 +140,8 @@ public class AuthController {
     }
 
     @PostMapping("/login/facebook")
-    public ResponseEntity<HttpResponse> loginWithFacebook(
-            @RequestParam @NotBlank String idToken) {
-
-        Authentication resp = authService.loginWithFacebook(idToken);
+    public ResponseEntity<HttpResponse> loginWithFacebook(@Valid @RequestBody SocialLoginRequest request) {
+        Authentication resp = authService.loginWithFacebook(request.getIdToken());
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(Instant.now().toString())
@@ -181,10 +157,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<HttpResponse> refreshToken(
-            @RequestParam @NotBlank String refreshToken) {
-
-        Authentication resp = authService.refreshToken(refreshToken);
+    public ResponseEntity<HttpResponse> refreshToken(@Valid @RequestBody RefreshRequest request) {
+        Authentication resp = authService.refreshToken(request.getRefreshToken());
 
         return ResponseEntity.ok(
                 HttpResponse.builder()
