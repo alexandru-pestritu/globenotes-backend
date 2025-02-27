@@ -80,7 +80,7 @@ public class AwsS3ServiceImpl implements AwsS3Service {
         if (slashIndex == -1) {
             throw new IllegalArgumentException("Invalid key format, missing userId folder");
         }
-        String userIdStr = afterUploads.substring(0, slashIndex); // "1234"
+        String userIdStr = afterUploads.substring(0, slashIndex);
 
         return Long.valueOf(userIdStr);
     }
