@@ -77,7 +77,8 @@ public class AuthController {
                         .statusCode(HttpStatus.OK.value())
                         .data(Map.of(
                                 "access_token", resp.getAccessToken(),
-                                "refresh_token", resp.getRefreshToken()
+                                "refresh_token", resp.getRefreshToken(),
+                                "user", resp.getUser()
                         ))
                         .build()
         );
@@ -133,7 +134,8 @@ public class AuthController {
                         .statusCode(HttpStatus.OK.value())
                         .data(Map.of(
                                 "access_token", resp.getAccessToken(),
-                                "refresh_token", resp.getRefreshToken()
+                                "refresh_token", resp.getRefreshToken(),
+                                "user", resp.getUser()
                         ))
                         .build()
         );
@@ -150,7 +152,8 @@ public class AuthController {
                         .statusCode(HttpStatus.OK.value())
                         .data(Map.of(
                                 "access_token", resp.getAccessToken(),
-                                "refresh_token", resp.getRefreshToken()
+                                "refresh_token", resp.getRefreshToken(),
+                                "user", resp.getUser()
                         ))
                         .build()
         );
@@ -168,7 +171,8 @@ public class AuthController {
                         .statusCode(HttpStatus.OK.value())
                         .data(Map.of(
                                 "access_token", resp.getAccessToken(),
-                                "refresh_token", resp.getRefreshToken()
+                                "refresh_token", resp.getRefreshToken(),
+                                "user", resp.getUser()
                         ))
                         .build()
         );

@@ -7,6 +7,7 @@ import com.app.globenotes_backend.dto.user.UserDTO;
 import com.app.globenotes_backend.dto.userProfile.UserProfileDTO;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.entity.*;
+import com.app.globenotes_backend.repository.UserRepository;
 import com.app.globenotes_backend.service.email.EmailService;
 import com.app.globenotes_backend.service.otp.OtpService;
 import com.app.globenotes_backend.service.refresh.RefreshTokenService;
@@ -113,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
         String refreshStr = jwtUtils.generateRefreshTokenString();
         refreshTokenService.createRefreshToken(user.getId(), refreshStr, REFRESH_EXPIRY_DAYS);
 
-        return new Authentication(accessToken, refreshStr);
+        return new Authentication(accessToken, refreshStr, user);
     }
 
     @Override
@@ -180,7 +181,7 @@ public class AuthServiceImpl implements AuthService {
         String refresh = jwtUtils.generateRefreshTokenString();
         refreshTokenService.createRefreshToken(user.getId(), refresh, REFRESH_EXPIRY_DAYS);
 
-        return new Authentication(accessToken, refresh);
+        return new Authentication(accessToken, refresh, user);
     }
 
 
@@ -212,7 +213,7 @@ public class AuthServiceImpl implements AuthService {
         String refresh = jwtUtils.generateRefreshTokenString();
         refreshTokenService.createRefreshToken(user.getId(), refresh, REFRESH_EXPIRY_DAYS);
 
-        return new Authentication(accessToken, refresh);
+        return new Authentication(accessToken, refresh, user);
     }
 
     @Override
@@ -225,7 +226,10 @@ public class AuthServiceImpl implements AuthService {
 
         String newAccessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
 
-        return new Authentication(newAccessToken, newRefresh);
+        UserDTO userDTO = userService.findByEmail(user.getEmail())
+                .orElseThrow(() -> new ApiException("User not found"));
+
+        return new Authentication(newAccessToken, newRefresh, userDTO);
     }
 
 
