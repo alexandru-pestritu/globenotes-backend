@@ -55,12 +55,15 @@ public class UserVisitedCountryServiceImpl implements UserVisitedCountryService{
 
 
     @Override
-    public void deleteUserVisitedCountry(Long userVisitedCountryId) {
-        Optional<UserVisitedCountry> userVisitedCountry = userVisitedCountryRepository.findById(userVisitedCountryId);
+    public void deleteUserVisitedCountry(Long userId, Long userVisitedCountryId) {
+        Optional<UserVisitedCountry> userVisitedCountry = userVisitedCountryRepository.findByUserIdAndId(userId, userVisitedCountryId);
 
         if(userVisitedCountry.isPresent()){
             userVisitedCountry.get().setIsDeleted(true);
             userVisitedCountryRepository.save(userVisitedCountry.get());
+        }
+        else {
+            throw new ApiException("User visited country not found");
         }
     }
 

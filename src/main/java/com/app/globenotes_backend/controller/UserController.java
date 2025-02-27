@@ -202,7 +202,7 @@ public class UserController {
             throw new ApiException("User is not authenticated");
         }
 
-        userVisitedCountryService.deleteUserVisitedCountry(userVisitedCountryId);
+        userVisitedCountryService.deleteUserVisitedCountry(userPrincipal.getUserId(), userVisitedCountryId);
 
         HttpResponse response = HttpResponse.builder()
                 .timeStamp(Instant.now().toString())

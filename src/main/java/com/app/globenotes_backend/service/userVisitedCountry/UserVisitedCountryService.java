@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface UserVisitedCountryService {
     UserVisitedCountryDetailsDTO addUserVisitedCountry(UserVisitedCountryDTO userVisitedCountryDTO);
-    void deleteUserVisitedCountry(Long userVisitedCountryId);
+    void deleteUserVisitedCountry(Long userId, Long userVisitedCountryId);
     List<UserVisitedCountryDetailsDTO> getUserVisitedCountriesByUserId(Long userId);
 }

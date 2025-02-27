@@ -10,5 +10,6 @@ import java.util.Optional;
 @Repository
 public interface UserVisitedCountryRepository extends JpaRepository<UserVisitedCountry, Long> {
     Optional<UserVisitedCountry> findByCountryIdAndUserId(Long countryId, Long userId);
+    Optional<UserVisitedCountry> findByUserIdAndId(Long userId, Long userVisitedCountryId);
     List<UserVisitedCountry> findByUserId(Long userId);
 }
