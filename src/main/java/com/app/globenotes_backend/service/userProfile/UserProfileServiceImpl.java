@@ -61,7 +61,6 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    @Transactional
     public UserProfileDetailsDTO getProfileDetailsByUserId(Long userId) {
         UserProfile profile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException("UserProfile not found"));
@@ -69,7 +68,6 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    @Transactional
     public UserProfileDetailsDTO updateProfileDetails(Long userId, UserProfileDetailsDTO userProfileDetailsDTO) {
         UserProfile profile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException("UserProfile not found"));
