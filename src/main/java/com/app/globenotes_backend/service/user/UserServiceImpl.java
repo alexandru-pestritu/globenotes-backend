@@ -1,7 +1,6 @@
 package com.app.globenotes_backend.service.user;
 
 import com.app.globenotes_backend.dto.user.UserDTO;
-import com.app.globenotes_backend.dto.user.UserDetailsDTO;
 import com.app.globenotes_backend.dto.user.UserMapper;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.entity.User;
@@ -62,11 +61,5 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(newRawPassword));
         userRepository.save(user);
-    }
-
-    @Override
-    public Optional<UserDetailsDTO> findUserDetailsByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(userMapper::toUserDetailsDTO);
     }
 }

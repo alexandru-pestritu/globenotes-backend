@@ -1,5 +1,7 @@
 package com.app.globenotes_backend.service.location;
 
+import com.app.globenotes_backend.dto.location.LocationDetailsDTO;
+import com.app.globenotes_backend.dto.location.LocationMapper;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.entity.Location;
 import com.app.globenotes_backend.repository.LocationRepository;
@@ -14,43 +16,13 @@ import java.util.Optional;
 public class LocationServiceImpl implements LocationService {
 
     private final LocationRepository locationRepository;
+    private final LocationMapper locationMapper;
+
 
     @Override
-    public Location createLocation(Location location) {
-        return locationRepository.save(location);
-    }
+    public Location createLocation(LocationDetailsDTO location) {
+        Optional<Location> existing = locationRepository.findLocationByLongitudeAndLatitude(location.getLongitude(), location.getLatitude());
 
-    @Override
-    public Optional<Location> getLocationById(Long id) {
-        return locationRepository.findById(id);
-    }
-
-    @Override
-    public List<Location> getAllLocations() {
-        return locationRepository.findAll();
-    }
-
-    @Override
-    public Location updateLocation(Long id, Location newData) {
-        Location loc = locationRepository.findById(id)
-                .orElseThrow(() -> new ApiException("Location not found"));
-
-        loc.setLatitude(newData.getLatitude());
-        loc.setLongitude(newData.getLongitude());
-        loc.setFormattedAddress(newData.getFormattedAddress());
-        loc.setCity(newData.getCity());
-        loc.setState(newData.getState());
-        loc.setGooglePlaceId(newData.getGooglePlaceId());
-        loc.setCountry(newData.getCountry());
-
-        return locationRepository.save(loc);
-    }
-
-    @Override
-    public void deleteLocation(Long id) {
-        if (!locationRepository.existsById(id)) {
-            throw new ApiException("Location not found");
-        }
-        locationRepository.deleteById(id);
+        return existing.orElseGet(() -> locationRepository.save(locationMapper.toEntityFromDetails(location)));
     }
 }

@@ -1,7 +1,6 @@
 package com.app.globenotes_backend.service.user;
 
 import com.app.globenotes_backend.dto.user.UserDTO;
-import com.app.globenotes_backend.dto.user.UserDetailsDTO;
 import com.app.globenotes_backend.entity.User;
 
 import java.util.Optional;
@@ -17,6 +16,4 @@ public interface UserService {
     boolean checkPassword(Long userId, String rawPassword);
 
     void updatePassword(Long userId, String newRawPassword);
-
-    Optional<UserDetailsDTO> findUserDetailsByEmail(String email);
 }

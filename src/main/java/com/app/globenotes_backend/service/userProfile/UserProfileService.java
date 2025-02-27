@@ -1,6 +1,7 @@
 package com.app.globenotes_backend.service.userProfile;
 
 import com.app.globenotes_backend.dto.userProfile.UserProfileDTO;
+import com.app.globenotes_backend.dto.userProfile.UserProfileDetailsDTO;
 import com.app.globenotes_backend.entity.User;
 import com.app.globenotes_backend.entity.UserProfile;
 
@@ -12,5 +13,8 @@ public interface UserProfileService {
     UserProfileDTO getProfileByUserId(Long userId);
 
     void updateProfilePhoto(Long userProfileId, String newPhotoUrl);
+
+    UserProfileDetailsDTO getProfileDetailsByUserId(Long userId);
+    UserProfileDetailsDTO updateProfileDetails(Long userId, UserProfileDetailsDTO userProfileDetailsDTO);
 
 }

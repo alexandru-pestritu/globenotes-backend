@@ -1,5 +1,6 @@
 package com.app.globenotes_backend.service.location;
 
+import com.app.globenotes_backend.dto.location.LocationDetailsDTO;
 import com.app.globenotes_backend.entity.Location;
 
 import java.util.List;
@@ -7,13 +8,6 @@ import java.util.Optional;
 
 public interface LocationService {
 
-    Location createLocation(Location location);
+    Location createLocation(LocationDetailsDTO location);
 
-    Optional<Location> getLocationById(Long id);
-
-    List<Location> getAllLocations();
-
-    Location updateLocation(Long id, Location newData);
-
-    void deleteLocation(Long id);
 }
