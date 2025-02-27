@@ -4,6 +4,11 @@ import com.app.globenotes_backend.entity.UserVisitedCountry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface UserVisitedCountryRepository extends JpaRepository<UserVisitedCountry, Long> {
+    Optional<UserVisitedCountry> findByCountryIdAndUserId(Long countryId, Long userId);
+    List<UserVisitedCountry> findByUserId(Long userId);
 }
