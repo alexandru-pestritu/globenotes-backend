@@ -161,7 +161,17 @@ public class AuthServiceImpl implements AuthService {
         String providerId = googleInfo.getSub();
 
         Optional<UserSocialAccount> socialOpt = socialAccountService.findByProviderAndProviderId(provider, providerId);
-        UserDTO user = userService.findByEmail(googleInfo.getEmail()).orElse(null);
+
+        UserDTO user = null;
+
+        if(socialOpt.isPresent()) {
+            user = userService.findById(socialOpt.get().getUser().getId()).orElse(null);
+        }
+        else {
+            user = userService.findByEmail(googleInfo.getEmail()).orElse(null);
+        }
+
+
         if (user == null) {
             user = userService.createUser(googleInfo.getEmail(), null);
             userService.verifyUser(user.getId());
@@ -193,7 +203,15 @@ public class AuthServiceImpl implements AuthService {
         String providerId = fbInfo.getId();
 
         Optional<UserSocialAccount> socialOpt = socialAccountService.findByProviderAndProviderId(provider, providerId);
-        UserDTO user = userService.findByEmail(fbInfo.getEmail()).orElse(null);
+        UserDTO user = null;
+
+        if(socialOpt.isPresent()) {
+            user = userService.findById(socialOpt.get().getUser().getId()).orElse(null);
+        }
+        else {
+            user = userService.findByEmail(fbInfo.getEmail()).orElse(null);
+        }
+
         if (user == null) {
             user = userService.createUser(fbInfo.getEmail(), null);
             userService.verifyUser(user.getId());

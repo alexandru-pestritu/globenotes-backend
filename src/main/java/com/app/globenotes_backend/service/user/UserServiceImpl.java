@@ -38,6 +38,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<UserDTO> findById(Long userId) {
+        return userRepository.findById(userId).map(userMapper::toDTO);
+    }
+
+    @Override
+    public void updateEmail(Long userId, String newEmail) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found"));
+
+        if (userRepository.existsByEmail(newEmail)) {
+            throw new ApiException("Email already in use");
+        }
+
+        user.setEmail(newEmail);
+        user.setIsVerified(false);
+        userRepository.save(user);
+    }
+
+
+    @Override
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
+
+    @Override
     public void verifyUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException("User not found"));
