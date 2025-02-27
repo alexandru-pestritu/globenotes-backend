@@ -2,9 +2,11 @@ package com.app.globenotes_backend.dto.moment;
 
 import com.app.globenotes_backend.dto.category.CategoryDTO;
 import com.app.globenotes_backend.dto.location.LocationDetailsDTO;
+import com.app.globenotes_backend.dto.momentMedia.MomentMediaDTO;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,4 +24,5 @@ public class MomentDetailsDTO {
     private Instant createdAt;
     private Instant updatedAt;
     private boolean isDeleted;
+    List<MomentMediaDTO> momentMediaList;
 }
