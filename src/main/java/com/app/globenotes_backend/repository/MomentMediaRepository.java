@@ -4,6 +4,9 @@ import com.app.globenotes_backend.entity.MomentMedia;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface MomentMediaRepository extends JpaRepository<MomentMedia, Long> {
+    Optional<MomentMedia> findByMediaUrlAndMoment_Id(String mediaUrl, Long momentId);
 }
