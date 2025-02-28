@@ -22,7 +22,7 @@ public interface MomentMapper {
     @Mapping(source = "journal.id", target = "journalId")
     @Mapping(source = "location", target = "location")
     @Mapping(source = "category", target = "category")
-    @Mapping(target = "momentMediaList", ignore = true)
+    @Mapping(source = "momentMediaList", target = "momentMediaList")
     MomentDetailsDTO toDetailsDTO(Moment moment);
 
     @Mapping(source = "journalId", target = "journal.id")
