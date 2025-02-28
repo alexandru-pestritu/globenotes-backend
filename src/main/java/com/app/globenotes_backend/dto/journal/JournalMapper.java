@@ -18,7 +18,7 @@ public interface JournalMapper {
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "tripLocation", target = "tripLocation")
-    @Mapping(target = "moments", ignore = true)
+    @Mapping(source = "moments", target = "moments")
     JournalDetailsDTO toDetailsDTO(Journal journal);
 
     @Mapping(source = "userId", target = "user.id")
