@@ -34,7 +34,7 @@ public class JournalServiceImpl implements JournalService{
 
     @Override
     public JournalDetailsDTO getJournalDetails(Long userId, Long journalId) {
-        Optional<Journal> journal = journalRepository.findByUserIdAndId(userId, journalId);
+        Optional<Journal> journal = journalRepository.findByIdAndUserIdAndIsDeletedFalse(userId, journalId);
 
         return journal.map(journalMapper::toDetailsDTO).orElseThrow(() -> new ApiException("Journal not found"));
     }
@@ -74,7 +74,7 @@ public class JournalServiceImpl implements JournalService{
 
     @Override
     public List<JournalDTO> getJournals(Long userId) {
-        return journalRepository.findAllByUserId(userId).stream()
+        return journalRepository.findAllByUserIdAndIsDeletedFalse(userId).stream()
                 .map(journalMapper::toDTO)
                 .toList();
     }

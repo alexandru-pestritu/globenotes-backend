@@ -69,7 +69,7 @@ public class UserVisitedCountryServiceImpl implements UserVisitedCountryService{
 
     @Override
     public List<UserVisitedCountryDetailsDTO> getUserVisitedCountriesByUserId(Long userId) {
-        return userVisitedCountryRepository.findByUserId(userId)
+        return userVisitedCountryRepository.findByUserIdAndIsDeletedFalse(userId)
                 .stream()
                 .map(userVisitedCountryMapper::toDetailsDTO)
                 .collect(Collectors.toList());

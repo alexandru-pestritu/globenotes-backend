@@ -1,4 +1,4 @@
-package com.app.globenotes_backend.repository;
+package com.app.globenotes_backend.security;
 
 import com.app.globenotes_backend.dto.response.HttpResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Instant;
-import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 

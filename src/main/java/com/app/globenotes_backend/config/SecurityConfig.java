@@ -1,6 +1,6 @@
 package com.app.globenotes_backend.config;
 
-import com.app.globenotes_backend.repository.CustomAuthenticationEntryPoint;
+import com.app.globenotes_backend.security.CustomAuthenticationEntryPoint;
 import com.app.globenotes_backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
