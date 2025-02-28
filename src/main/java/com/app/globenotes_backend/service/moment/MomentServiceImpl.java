@@ -8,9 +8,11 @@ import com.app.globenotes_backend.entity.Location;
 import com.app.globenotes_backend.entity.Moment;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.repository.JournalRepository;
+import com.app.globenotes_backend.repository.MomentMediaRepository;
 import com.app.globenotes_backend.repository.MomentRepository;
 import com.app.globenotes_backend.service.location.LocationService;
 import com.app.globenotes_backend.service.momentMedia.MomentMediaService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import java.util.List;
 public class MomentServiceImpl implements MomentService{
     private final MomentRepository momentRepository;
     private final MomentMapper momentMapper;
+    private final MomentMediaRepository momentMediaRepository;
     private final MomentMediaService momentMediaService;
     private final LocationService locationService;
     private final JournalRepository journalRepository;
@@ -49,6 +52,7 @@ public class MomentServiceImpl implements MomentService{
 
         moment = momentRepository.findById(moment.getId())
                 .orElseThrow(() -> new ApiException("Moment could not be reloaded after save"));
+        moment.setMomentMediaList(momentMediaRepository.findAllByMoment_Id(moment.getId()));
 
         return momentMapper.toDetailsDTO(moment);
     }
