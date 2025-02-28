@@ -8,6 +8,7 @@ import com.app.globenotes_backend.entity.Location;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.repository.JournalRepository;
 import com.app.globenotes_backend.service.location.LocationService;
+import com.app.globenotes_backend.service.moment.MomentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class JournalServiceImpl implements JournalService{
     private final JournalRepository journalRepository;
     private final JournalMapper journalMapper;
     private final LocationService locationService;
+    private final MomentService momentService;
 
     @Override
     public JournalDTO createJournal(JournalDTO journalDTO) {
@@ -60,8 +62,10 @@ public class JournalServiceImpl implements JournalService{
         }
         else {
             journal.get().setIsDeleted(true);
+            journal.get().getMoments().forEach(moment -> momentService.deleteMoment(userId, moment.getId()));
             journalRepository.save(journal.get());
         }
+
     }
 
     @Override

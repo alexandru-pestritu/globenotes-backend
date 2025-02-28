@@ -95,6 +95,9 @@ public class MomentServiceImpl implements MomentService{
                 .findByIdAndJournal_User_IdAndIsDeletedFalse(momentId, userId)
                 .orElseThrow(() -> new ApiException("Moment not found or doesn't belong to this user"));
 
+        momentMediaRepository.findAllByMoment_Id(momentId)
+                .forEach(media -> media.setIsDeleted(true));
+
         moment.setIsDeleted(true);
         momentRepository.save(moment);
     }
