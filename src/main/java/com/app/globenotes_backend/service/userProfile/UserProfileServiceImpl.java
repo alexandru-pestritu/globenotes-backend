@@ -72,6 +72,10 @@ public class UserProfileServiceImpl implements UserProfileService {
         UserProfile profile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException("UserProfile not found"));
 
+        if(profile.getUpdatedAt().isAfter(userProfileDetailsDTO.getUpdatedAt())) {
+            return userProfileMapper.toDetailsDTO(profile);
+        }
+
         profile.setName(userProfileDetailsDTO.getName());
         profile.setProfilePhotoUrl(userProfileDetailsDTO.getProfilePhotoUrl());
         profile.setCoverPhotoUrl(userProfileDetailsDTO.getCoverPhotoUrl());

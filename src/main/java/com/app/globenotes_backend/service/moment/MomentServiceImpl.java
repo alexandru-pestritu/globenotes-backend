@@ -63,6 +63,9 @@ public class MomentServiceImpl implements MomentService{
                 .findByIdAndJournal_User_IdAndIsDeletedFalse(momentDetailsDTO.getId(), userId)
                 .orElseThrow(() -> new ApiException("Moment not found or doesn't belong to this user"));
 
+        if(existingMoment.getUpdatedAt().isAfter(momentDetailsDTO.getUpdatedAt()))
+            return momentMapper.toDetailsDTO(existingMoment);
+
         existingMoment.setName(momentDetailsDTO.getName());
         existingMoment.setDescription(momentDetailsDTO.getDescription());
         existingMoment.setDateTime(momentDetailsDTO.getDateTime());

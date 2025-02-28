@@ -46,6 +46,10 @@ public class JournalServiceImpl implements JournalService{
         if(journal.isEmpty()) {
             throw new ApiException("Journal not found");
         }
+        else if(journal.get().getUpdatedAt().isAfter(journalDTO.getUpdatedAt())) {
+            return journalMapper.toDTO(journal.get());
+
+        }
         else {
             Journal updatedJournal = journalMapper.toEntity(journalDTO);
             updatedJournal.setTripLocation(locationService.createLocation(journalDTO.getTripLocation()));
