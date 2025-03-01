@@ -1,9 +1,11 @@
 package com.app.globenotes_backend.controller;
 
+import com.app.globenotes_backend.dto.category.CategoryDTO;
 import com.app.globenotes_backend.dto.moment.MomentDetailsDTO;
 import com.app.globenotes_backend.dto.response.HttpResponse;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.security.UserPrincipal;
+import com.app.globenotes_backend.service.category.CategoryService;
 import com.app.globenotes_backend.service.moment.MomentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,6 +25,27 @@ import java.util.Map;
 public class MomentController {
 
     private final MomentService momentService;
+    private final CategoryService categoryService;
+
+    @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
+    @GetMapping("/categories")
+    public ResponseEntity<HttpResponse> getAllCategories(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal == null) {
+            throw new ApiException("User is not authenticated");
+        }
+
+        List<CategoryDTO> categoryDTOs = categoryService.getAllCategories();
+
+        HttpResponse response = HttpResponse.builder()
+                .timeStamp(Instant.now().toString())
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .message("Moment categories retrieved successfully")
+                .data(Map.of("categories", categoryDTOs))
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
 
     @Operation(security = {@SecurityRequirement(name = "bearerAuth")})
     @PostMapping("/")
