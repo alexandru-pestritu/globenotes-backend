@@ -21,7 +21,6 @@ public class MomentDetailsDTO {
     private String description;
     private CategoryDTO category;
     private Instant dateTime;
-    private Instant createdAt;
     private Instant updatedAt;
     private boolean isDeleted;
     List<MomentMediaDTO> momentMediaList;

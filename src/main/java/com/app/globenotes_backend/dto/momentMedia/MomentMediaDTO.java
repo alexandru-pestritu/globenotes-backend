@@ -14,7 +14,6 @@ public class MomentMediaDTO {
     private Long momentId;
     private String mediaUrl;
     private String mediaType;
-    private Instant createdAt;
     private Instant updatedAt;
     private boolean isDeleted;
 }

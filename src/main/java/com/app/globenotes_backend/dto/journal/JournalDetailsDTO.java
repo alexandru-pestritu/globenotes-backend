@@ -24,7 +24,6 @@ public class JournalDetailsDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean remindersEnabled;
-    private Instant createdAt;
     private Instant updatedAt;
     private boolean isDeleted;
     List<MomentDetailsDTO> moments;

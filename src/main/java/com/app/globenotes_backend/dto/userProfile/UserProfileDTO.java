@@ -17,7 +17,6 @@ public class UserProfileDTO {
     private String coverPhotoUrl;
     private String bio;
     private Long locationId;
-    private Instant createdAt;
     private Instant updatedAt;
 }
 

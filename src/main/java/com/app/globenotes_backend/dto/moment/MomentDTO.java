@@ -18,7 +18,6 @@ public class MomentDTO {
     private String description;
     private Long categoryId;
     private Instant dateTime;
-    private Instant createdAt;
     private Instant updatedAt;
     private boolean isDeleted;
 }

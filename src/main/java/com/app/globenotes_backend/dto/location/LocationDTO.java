@@ -17,7 +17,6 @@ public class LocationDTO {
     private String city;
     private String state;
     private Long countryId;
-    private Instant createdAt;
     private Instant updatedAt;
     private boolean isDeleted;
 }

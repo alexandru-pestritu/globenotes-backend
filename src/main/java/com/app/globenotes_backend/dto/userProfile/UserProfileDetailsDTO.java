@@ -17,6 +17,5 @@ public class UserProfileDetailsDTO {
     private String coverPhotoUrl;
     private String bio;
     private LocationDetailsDTO location;
-    private Instant createdAt;
     private Instant updatedAt;
 }

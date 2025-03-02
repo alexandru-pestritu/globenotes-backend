@@ -13,7 +13,6 @@ public class UserDTO {
     private Long id;
     private String email;
     private boolean isVerified;
-    private Instant createdAt;
     private Instant updatedAt;
 }
 

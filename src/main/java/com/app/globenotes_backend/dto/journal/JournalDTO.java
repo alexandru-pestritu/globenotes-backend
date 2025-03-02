@@ -21,7 +21,6 @@ public class JournalDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean remindersEnabled;
-    private Instant createdAt;
     private Instant updatedAt;
     private boolean isDeleted;
 }
