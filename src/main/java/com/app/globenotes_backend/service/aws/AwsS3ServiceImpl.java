@@ -1,5 +1,6 @@
 package com.app.globenotes_backend.service.aws;
 
+import com.app.globenotes_backend.dto.request.PresignedRequest;
 import com.app.globenotes_backend.dto.response.PresignedResponse;
 import com.app.globenotes_backend.exception.ApiException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +74,20 @@ public class AwsS3ServiceImpl implements AwsS3Service {
         );
 
         return presignedGetObjectRequest.url().toString();
+    }
+
+    @Override
+    public List<PresignedResponse> generatePresignedUrlsForUpload(Long userId, List<PresignedRequest> requests) {
+        return requests.stream()
+                .map(req -> generatePresignedUrlForUpload(userId, req.getFileName(), req.getContentType()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PresignedResponse> generatePresignedUrlsForGet(Long userId, List<String> keys) {
+        return keys.stream()
+                .map(key -> new PresignedResponse(key, generatePresignedUrlForGet(userId, key)))
+                .collect(Collectors.toList());
     }
 
     private Long parseUserIdFromKey(String key) {

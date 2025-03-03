@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/s3")
@@ -30,43 +31,47 @@ public class S3Controller {
     private final AwsS3Service awsS3Service;
 
     @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
-    @PostMapping("/presigned")
-    public ResponseEntity<HttpResponse> getPresignedUrl(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody PresignedRequest request) {
+    @PostMapping("/presigned/put")
+    public ResponseEntity<HttpResponse> getPresignedUrls(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody List<PresignedRequest> requests) {
         if (userPrincipal == null) {
             throw new ApiException("User is not authenticated");
         }
 
-        PresignedResponse presignedResponse = awsS3Service.generatePresignedUrlForUpload(userPrincipal.getUserId(), request.getFileName(), request.getContentType());
+        List<PresignedResponse> presignedResponses = requests.stream()
+                .map(req -> awsS3Service.generatePresignedUrlForUpload(userPrincipal.getUserId(), req.getFileName(), req.getContentType()))
+                .toList();
 
         HttpResponse response = HttpResponse.builder()
                 .timeStamp(Instant.now().toString())
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
-                .message("Presigned URL generated successfully")
-                .data(Map.of("presigned", presignedResponse))
+                .message("Presigned URLs generated successfully")
+                .data(Map.of("presigned", presignedResponses))
                 .build();
 
         return ResponseEntity.ok(response);
     }
 
     @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
-    @GetMapping("/presigned")
-    public ResponseEntity<HttpResponse> getPresignedUrlForDownload(
+    @PostMapping("/presigned/get")
+    public ResponseEntity<HttpResponse> getPresignedUrlsForDownload(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam String key
+            @RequestBody List<String> keys
     ) {
         if (userPrincipal == null) {
             throw new ApiException("User is not authenticated");
         }
 
-        String presignedGetUrl = awsS3Service.generatePresignedUrlForGet(userPrincipal.getUserId(), key);
+        List<PresignedResponse> presignedResponses = keys.stream()
+                .map(key -> new PresignedResponse(key, awsS3Service.generatePresignedUrlForGet(userPrincipal.getUserId(), key)))
+                .toList();
 
         HttpResponse response = HttpResponse.builder()
                 .timeStamp(Instant.now().toString())
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
-                .message("Presigned GET URL generated successfully")
-                .data(Map.of("url", presignedGetUrl))
+                .message("Presigned GET URLs generated successfully")
+                .data(Map.of("urls", presignedResponses))
                 .build();
 
         return ResponseEntity.ok(response);
