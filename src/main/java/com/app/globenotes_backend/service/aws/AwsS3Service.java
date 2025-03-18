@@ -10,4 +10,6 @@ public interface AwsS3Service {
     String generatePresignedUrlForGet(Long userId, String key);
     List<PresignedResponse> generatePresignedUrlsForUpload(Long userId, List<PresignedRequest> requests);
     List<PresignedResponse> generatePresignedUrlsForGet(Long userId, List<String> keys);
+    String uploadFileFromUrl(Long userId, String externalUrl, String fileName);
+
 }

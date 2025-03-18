@@ -8,6 +8,7 @@ import com.app.globenotes_backend.dto.userProfile.UserProfileDTO;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.entity.*;
 import com.app.globenotes_backend.repository.UserRepository;
+import com.app.globenotes_backend.service.aws.AwsS3Service;
 import com.app.globenotes_backend.service.email.EmailService;
 import com.app.globenotes_backend.service.otp.OtpService;
 import com.app.globenotes_backend.service.refresh.RefreshTokenService;
@@ -38,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private final SocialAccountService socialAccountService;
     private final JwtUtils jwtUtils;
     private final EmailService emailService;
+    private final AwsS3Service awsS3Service;
     private final SocialAuthUtil socialAuthUtil;
 
     private final long OTP_EXPIRY_MINUTES = 10;
@@ -183,8 +185,11 @@ public class AuthServiceImpl implements AuthService {
 
         if (googleInfo.getPicture() != null) {
             UserProfileDTO profile = userProfileService.getProfileByUserId(user.getId());
-            if (profile.getProfilePhotoUrl() == null)
-                userProfileService.updateProfilePhoto(profile.getId(), googleInfo.getPicture());
+            if (profile.getProfilePhotoUrl() == null) {
+                String pictureUrl = googleInfo.getPicture();
+                String s3Key = awsS3Service.uploadFileFromUrl(user.getId(), pictureUrl, "google_pic.jpg");
+                userProfileService.updateProfilePhoto(profile.getId(), s3Key);
+            }
         }
 
         String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());
@@ -223,8 +228,10 @@ public class AuthServiceImpl implements AuthService {
 
         if (fbInfo.getPicture() != null) {
             UserProfileDTO profile = userProfileService.getProfileByUserId(user.getId());
-            if (profile.getProfilePhotoUrl() == null)
-                userProfileService.updateProfilePhoto(profile.getId(), fbInfo.getPicture());
+            if (profile.getProfilePhotoUrl() == null) {
+                String s3Key = awsS3Service.uploadFileFromUrl(user.getId(), fbInfo.getPicture(), "fb_pic.jpg");
+                userProfileService.updateProfilePhoto(profile.getId(), s3Key);
+            }
         }
 
         String accessToken = jwtUtils.generateAccessToken(user.getId(), user.getEmail());

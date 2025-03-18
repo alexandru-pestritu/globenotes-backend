@@ -6,6 +6,8 @@ import com.app.globenotes_backend.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -14,6 +16,10 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +29,7 @@ import java.util.stream.Collectors;
 public class AwsS3ServiceImpl implements AwsS3Service {
 
     private final S3Presigner s3Presigner;
+    private final S3Client s3Client;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
@@ -88,6 +95,37 @@ public class AwsS3ServiceImpl implements AwsS3Service {
         return keys.stream()
                 .map(key -> new PresignedResponse(key, generatePresignedUrlForGet(userId, key)))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public String uploadFileFromUrl(Long userId, String externalUrl, String fileName) {
+        String key = "uploads/" + userId + "/" + System.currentTimeMillis() + "_" + fileName;
+
+        try (InputStream inputStream = new URL(externalUrl).openStream();
+             ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+
+            byte[] tmp = new byte[8_192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(tmp)) != -1) {
+                buffer.write(tmp, 0, bytesRead);
+            }
+
+            byte[] fileBytes = buffer.toByteArray();
+
+            PutObjectRequest putRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+
+            s3Client.putObject(
+                    putRequest,
+                    RequestBody.fromBytes(fileBytes)
+            );
+
+            return key;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload file to S3 from external URL", e);
+        }
     }
 
     private Long parseUserIdFromKey(String key) {
