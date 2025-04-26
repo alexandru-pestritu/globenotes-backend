@@ -2,13 +2,21 @@ package com.app.globenotes_backend.service.user;
 
 import com.app.globenotes_backend.dto.user.UserDTO;
 import com.app.globenotes_backend.dto.user.UserMapper;
+import com.app.globenotes_backend.dto.userProfile.UserProfileDTO;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.entity.User;
+import com.app.globenotes_backend.service.email.EmailService;
+import com.app.globenotes_backend.service.otp.OtpService;
+import com.app.globenotes_backend.service.userProfile.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.app.globenotes_backend.repository.UserRepository;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -18,6 +26,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final EmailService emailService;
+    private final OtpService otpService;
+    private final UserProfileService userProfileService;
+
+    private final long OTP_EXPIRY_MINUTES = 10;
 
     @Override
     public UserDTO createUser(String email, String rawPassword) {
@@ -54,6 +67,21 @@ public class UserServiceImpl implements UserService {
         user.setEmail(newEmail);
         user.setIsVerified(false);
         userRepository.save(user);
+
+        UserProfileDTO userProfile = userProfileService.getProfileByUserId(user.getId());
+
+        String code = generateRandom4Digits();
+        otpService.createOtp(user.getId(), "VERIFICATION", code, Instant.now().plus(Duration.ofMinutes(OTP_EXPIRY_MINUTES)));
+
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("NAME", userProfile.getName());
+        placeholders.put("OTP_CODE", code);
+
+//        emailService.sendTemplatedEmail(
+//                user.getEmail(),
+//                "email-verification",
+//                placeholders
+//            );
     }
 
 
@@ -86,5 +114,10 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(newRawPassword));
         userRepository.save(user);
+    }
+
+    private String generateRandom4Digits() {
+        int code = (int) (Math.random() * 9000) + 1000;
+        return String.valueOf(code);
     }
 }

@@ -32,6 +32,8 @@ public class UserVisitedCountryServiceImpl implements UserVisitedCountryService{
                 .findByCountryIdAndUserId(userVisitedCountryDTO.getCountryId(), userVisitedCountryDTO.getUserId());
 
         if (existing.isPresent()) {
+            existing.get().setIsDeleted(false);
+            userVisitedCountryRepository.save(existing.get());
             return userVisitedCountryMapper.toDetailsDTO(existing.get());
         }
 
