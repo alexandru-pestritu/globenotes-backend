@@ -17,7 +17,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,9 +60,9 @@ public class MomentServiceImpl implements MomentService{
         return momentMapper.toDetailsDTO(moment);
     }
 
+    @Override
     @Transactional
-    public MomentDetailsDTO updateMoment(Long userId,
-                                         MomentDetailsDTO dto) {
+    public MomentDetailsDTO updateMoment(Long userId, MomentDetailsDTO dto) {
 
         Moment moment = momentRepository
                 .findByIdAndJournal_User_IdAndIsDeletedFalse(dto.getId(), userId)
@@ -79,19 +81,18 @@ public class MomentServiceImpl implements MomentService{
         } else {
             moment.setLocation(null);
         }
+        moment.setUpdatedAt(Instant.now());
         moment = momentRepository.save(moment);
 
-        List<MomentMedia> currentMedia =
-                momentMediaRepository.findAllByMoment_IdAndIsDeletedFalse(moment.getId());
+        List<MomentMedia> currentMedia = momentMediaRepository
+                .findAllByMoment_IdAndIsDeletedFalse(moment.getId());
 
-        Map<String, MomentMedia> byUrl = new HashMap<>();
-        Map<Long, MomentMedia>   byId  = new HashMap<>();
-        for (MomentMedia m : currentMedia) {
-            byUrl.put(m.getMediaUrl(), m);
-            byId.put(m.getId(), m);
-        }
+        Map<Long, MomentMedia>    byId  = currentMedia.stream()
+                .collect(Collectors.toMap(MomentMedia::getId, m -> m));
+        Map<String, MomentMedia>  byUrl = currentMedia.stream()
+                .collect(Collectors.toMap(MomentMedia::getMediaUrl, m -> m));
 
-        Set<Long> seen = new HashSet<>();
+        Set<Long> keepIds = new HashSet<>();
 
         if (dto.getMomentMediaList() != null) {
             for (MomentMediaDTO mediaDTO : dto.getMomentMediaList()) {
@@ -105,20 +106,18 @@ public class MomentServiceImpl implements MomentService{
 
                 if (mm == null) {
                     mediaDTO.setMomentId(moment.getId());
-                    momentMediaService.createMomentMedia(mediaDTO);
+                    MomentMedia created = momentMediaService.createMomentMedia(mediaDTO);
+                    keepIds.add(created.getId());
                 } else {
                     mm.setMediaType(mediaDTO.getMediaType());
                     mm.setUpdatedAt(mediaDTO.getUpdatedAt());
-                    mm.setIsDeleted(false);
                     momentMediaRepository.save(mm);
-                    seen.add(mm.getId());
+                    keepIds.add(mm.getId());
                 }
             }
         }
 
-        Collection<Long> keepIds = seen;
-        momentMediaRepository
-                .deleteByMoment_IdAndIdNotIn(moment.getId(), keepIds);
+        momentMediaRepository.deleteByMoment_IdAndIdNotIn(moment.getId(), keepIds);
 
         moment = momentRepository.findById(moment.getId())
                 .orElseThrow(() -> new ApiException("Moment could not be reloaded after update"));
