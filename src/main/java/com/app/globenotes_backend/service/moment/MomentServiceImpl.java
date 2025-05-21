@@ -6,6 +6,7 @@ import com.app.globenotes_backend.dto.momentMedia.MomentMediaDTO;
 import com.app.globenotes_backend.entity.Journal;
 import com.app.globenotes_backend.entity.Location;
 import com.app.globenotes_backend.entity.Moment;
+import com.app.globenotes_backend.entity.MomentMedia;
 import com.app.globenotes_backend.exception.ApiException;
 import com.app.globenotes_backend.repository.JournalRepository;
 import com.app.globenotes_backend.repository.MomentMediaRepository;
@@ -16,7 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -57,40 +58,74 @@ public class MomentServiceImpl implements MomentService{
         return momentMapper.toDetailsDTO(moment);
     }
 
-    @Override
-    public MomentDetailsDTO updateMoment(Long userId, MomentDetailsDTO momentDetailsDTO) {
-        Moment existingMoment = momentRepository
-                .findByIdAndJournal_User_IdAndIsDeletedFalse(momentDetailsDTO.getId(), userId)
+    @Transactional
+    public MomentDetailsDTO updateMoment(Long userId,
+                                         MomentDetailsDTO dto) {
+
+        Moment moment = momentRepository
+                .findByIdAndJournal_User_IdAndIsDeletedFalse(dto.getId(), userId)
                 .orElseThrow(() -> new ApiException("Moment not found or doesn't belong to this user"));
 
-        if(existingMoment.getUpdatedAt().isAfter(momentDetailsDTO.getUpdatedAt()))
-            return momentMapper.toDetailsDTO(existingMoment);
+        if (moment.getUpdatedAt().isAfter(dto.getUpdatedAt()))
+            return momentMapper.toDetailsDTO(moment);
 
-        existingMoment.setName(momentDetailsDTO.getName());
-        existingMoment.setDescription(momentDetailsDTO.getDescription());
-        existingMoment.setDateTime(momentDetailsDTO.getDateTime());
+        moment.setName(dto.getName());
+        moment.setDescription(dto.getDescription());
+        moment.setDateTime(dto.getDateTime());
 
-        if (momentDetailsDTO.getLocation() != null) {
-            Location location = locationService.createLocation(momentDetailsDTO.getLocation());
-            existingMoment.setLocation(location);
+        if (dto.getLocation() != null) {
+            Location loc = locationService.createLocation(dto.getLocation());
+            moment.setLocation(loc);
         } else {
-            existingMoment.setLocation(null);
+            moment.setLocation(null);
+        }
+        moment = momentRepository.save(moment);
+
+        List<MomentMedia> currentMedia =
+                momentMediaRepository.findAllByMoment_IdAndIsDeletedFalse(moment.getId());
+
+        Map<String, MomentMedia> byUrl = new HashMap<>();
+        Map<Long, MomentMedia>   byId  = new HashMap<>();
+        for (MomentMedia m : currentMedia) {
+            byUrl.put(m.getMediaUrl(), m);
+            byId.put(m.getId(), m);
         }
 
-        existingMoment = momentRepository.save(existingMoment);
+        Set<Long> seen = new HashSet<>();
 
-        if (momentDetailsDTO.getMomentMediaList() != null) {
-            for (MomentMediaDTO mediaDTO : momentDetailsDTO.getMomentMediaList()) {
-                mediaDTO.setMomentId(existingMoment.getId());
-                momentMediaService.createMomentMedia(mediaDTO);
+        if (dto.getMomentMediaList() != null) {
+            for (MomentMediaDTO mediaDTO : dto.getMomentMediaList()) {
+                MomentMedia mm = null;
+                if (mediaDTO.getId() != null) {
+                    mm = byId.get(mediaDTO.getId());
+                }
+                if (mm == null) {
+                    mm = byUrl.get(mediaDTO.getMediaUrl());
+                }
+
+                if (mm == null) {
+                    mediaDTO.setMomentId(moment.getId());
+                    momentMediaService.createMomentMedia(mediaDTO);
+                } else {
+                    mm.setMediaType(mediaDTO.getMediaType());
+                    mm.setUpdatedAt(mediaDTO.getUpdatedAt());
+                    mm.setIsDeleted(false);
+                    momentMediaRepository.save(mm);
+                    seen.add(mm.getId());
+                }
             }
         }
 
-        existingMoment = momentRepository.findById(existingMoment.getId())
+        Collection<Long> keepIds = seen;
+        momentMediaRepository
+                .deleteByMoment_IdAndIdNotIn(moment.getId(), keepIds);
+
+        moment = momentRepository.findById(moment.getId())
                 .orElseThrow(() -> new ApiException("Moment could not be reloaded after update"));
 
-        return momentMapper.toDetailsDTO(existingMoment);
+        return momentMapper.toDetailsDTO(moment);
     }
+
 
     @Override
     public void deleteMoment(Long userId, Long momentId) {
