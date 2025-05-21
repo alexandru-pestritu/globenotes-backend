@@ -42,9 +42,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<OtpCode> otpCodes;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserVisitedCountry> visitedCountries;
-
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserProfile userProfile;
 

@@ -5,7 +5,6 @@ import com.app.globenotes_backend.dto.moment.MomentMapper;
 import com.app.globenotes_backend.dto.sync.SyncDTO;
 import com.app.globenotes_backend.dto.user.UserMapper;
 import com.app.globenotes_backend.dto.userProfile.UserProfileMapper;
-import com.app.globenotes_backend.dto.userVisitedCountry.UserVisitedCountryMapper;
 import com.app.globenotes_backend.entity.*;
 import com.app.globenotes_backend.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +19,11 @@ import java.util.Optional;
 public class SyncServiceImpl implements SyncService {
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
-    private final UserVisitedCountryRepository userVisitedCountryRepository;
     private final JournalRepository journalRepository;
     private final MomentRepository momentRepository;
 
     private final UserMapper userMapper;
     private final UserProfileMapper userProfileMapper;
-    private final UserVisitedCountryMapper userVisitedCountryMapper;
     private final JournalMapper journalMapper;
     private final MomentMapper momentMapper;
 
@@ -39,11 +36,6 @@ public class SyncServiceImpl implements SyncService {
 
         Optional<UserProfile> userProfile = userProfileRepository.findByUserIdAndUpdatedAtAfter(userId, lastSync);
         userProfile.ifPresent(value -> syncDTO.setUserProfile(userProfileMapper.toDetailsDTO(value)));
-
-        List<UserVisitedCountry> userVisitedCountries = userVisitedCountryRepository.findByUserIdAndVisitedAtAfter(userId, lastSync);
-        syncDTO.setUserVisitedCountries(userVisitedCountries.stream()
-                .map(userVisitedCountryMapper::toDetailsDTO)
-                .toList());
 
         List<Journal> journals = journalRepository.findAllByUserIdAndUpdatedAtAfter(userId, lastSync);
         syncDTO.setJournals(journals.stream()
